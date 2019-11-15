@@ -1,0 +1,222 @@
+#_*_conding:utf-8_*_
+__author__ = 'Leonyan'
+
+
+import os,sys,subprocess
+import re
+import psutil
+
+
+def collect():
+    filter_keys = ['Manufacturer','Serial Number','Product Name',"UUID",'Wake-up Type']
+    raw_data = {}
+
+    for key in filter_keys:
+        try:
+            cmd_res = subprocess.Popen(
+                "sudo dmidecode -t system|grep '%s'",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE
+            ).stdout.read().decode('utf8').strip()
+            res_to_list = cmd_res.split(':')
+            if len(res_to_list) > 1:
+                raw_data[key] = res_to_list[1].strip()
+            else:
+                raw_data[key] = -1
+        except Exception as e:
+            print(e)
+            raw_data[key] = -2
+
+    data = {"asset_type":'server'}
+    data['manufactory'] = raw_data['Manufacturer']
+    data['sn'] = raw_data['Serial Number']
+    data['model'] = raw_data['Product Name']
+    data['uuid'] = raw_data['UUID']
+    data['wake_up_type'] = raw_data['Wake-up Type']
+
+    data.update(cpuinfo())
+    data.update(osinfo())
+    data.update(raminfo())
+    data.update(nicinfo())
+    data.update(diskinfo())
+    return data
+
+
+def diskinfo():
+    '''
+    dic_data: 存放获取到的磁盘信息
+    disk_list: 所有的磁盘设备名称
+    :return: {'physical_disk_driver':data}
+    '''
+    f = subprocess.Popen('fdisk -l',shell=True,stdout=subprocess.PIPE).stdout.read().decode('utf-8')
+    disk_list = []
+    raw_data = []
+    grep_pattern = ['Vendor', 'Product', 'User Capacity', 'Logical block size', ]
+    dic_data = {}
+    for line in f.split("\n"):
+        if line.startswith('Disk'):
+            data = re.findall(r'Disk \/dev\/[a-z]{3}:',line)
+            if data:
+                disk_device_name = re.search(r'(Disk) (?P<name>\/dev\/[a-z]{3})',line)
+                disk_dic = disk_device_name.groupdict()
+                disk_name = disk_dic.get('name')
+                disk_list.append(disk_name)
+    # 第三方共有云在获取磁盘信息的时候使用smartctl无法取值。只能使用fdisk拉取基本属性
+    for disk in disk_list:
+        res = subprocess.Popen(
+            'smartctl  --all %s'%disk,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE
+        ).stdout.read().decode('utf-8')
+    #通过测试已经获取到了res的信息，进行下一步的验证
+        if "%s: Unable to detect device type"%disk in res:
+            size = subprocess.Popen("fdisk -l %s |grep Disk |sed -n 1p|awk  '{print $3}'"%disk,shell=True,stdout=subprocess.PIPE).stdout.read().decode('utf-8').strip()
+            size_str = size + "GB"
+            dic_data["User Capacity"] = size_str
+            dic_data["Vendor"] = "Cloud"
+            raw_data.append(dic_data)
+            dic_data = None
+        else:
+            for line in res.split('\n'):
+                for filter_line in grep_pattern:
+                    if line.startswith(filter_line):
+                        dic_data[line.split(':')[0].strip()] = line.split(':')[1].strip()
+            raw_data.append(dic_data)
+            dic_data = None
+    return {'physical_disk_driver': raw_data}
+
+
+def nicinfo():
+    dic_data = {}
+    nic_list = []
+    nic_dic = psutil.net_if_addrs()
+
+    for device_name,info in nic_dic.items():
+        if "lo" not in device_name:
+            ipv4 = info[0].address
+            netmask = info[0].netmask
+            for item in info:
+                if item.family.name in {'AF_LINK','AF_PACKET'}:
+                    mac = item.address
+            dic_data['name'] = device_name
+            dic_data['ipaddress'] = ipv4
+            dic_data['macaddress'] = mac
+            dic_data['netmask'] = netmask
+            dic_data['model'] = 'unknown'
+            nic_list.append(dic_data)
+            dic_data = {}
+    return {'nic': nic_list}
+
+
+def raminfo():
+    f = subprocess.Popen("dmidecode -t 17", shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+    data = f.stdout.read().decode('utf-8')
+    raw_data = data.split('\n')
+    raw_ram_list = []  # 拿到的是每一个"Memory Device列表"
+    item_list = []  # 在循环的最后一次拿到的是Memory Device信息
+
+    for line in raw_data:
+        if line.startswith("Memory Device"):
+            raw_ram_list.append(item_list)  # 将数据归档
+            item_list = []  # 数据格式化
+        else:
+            item_list.append(line.strip())
+
+    raw_ram_list.append(item_list)
+    raw_list = []
+
+    for item in raw_ram_list:
+        item_ram_size = 0
+        ram_item_to_dic = {}
+        for i in item:
+            data = i.split(":")
+            if len(data) == 2:
+                key, v = data
+                if key == 'Size':
+                    # print key ,v
+                    if v.strip() != "No Module Installed":
+                        ram_item_to_dic['capacity'] = v.split()[0].strip()  # e.g split "1024 MB"
+                        item_ram_size = int(v.split()[0])
+                    else:
+                        ram_item_to_dic['capacity'] = 0
+                if key == 'Type':
+                    ram_item_to_dic['model'] = v.strip()
+                if key == 'Manufacturer':
+                    ram_item_to_dic['manufactory'] = v.strip()
+                if key == 'Serial Number':
+                    ram_item_to_dic['sn'] = v.strip()
+                if key == 'Asset Tag':
+                    ram_item_to_dic['asset_tag'] = v.strip()
+                if key == 'Locator':
+                    ram_item_to_dic['slot'] = v.strip()
+        if item_ram_size == 0:  # empty slot , need to report this
+            pass
+        else:
+            raw_list.append(ram_item_to_dic)
+
+    ram_data = {'ram': raw_list}
+    meminfo = subprocess.Popen("cat /proc/meminfo",shell=True,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+    data = meminfo.stdout.read().decode('utf-8')
+    mem_list = re.findall(r'MemTotal.*',data)
+    memtotal = mem_list[0].split(":")[1].split()[0].strip()  #通过此方式获取到的内存是以KB为单位
+    int_memtotal = int(int(memtotal) / 1024)
+    ram_data['ram_size'] = int_memtotal
+
+    return ram_data
+
+
+def osinfo():
+    os_info = subprocess.Popen(
+        'cat /etc/centos-release',
+        shell=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE
+    ).stdout.read().decode('utf-8')
+    data_dic ={
+        "os_distribution": os_info.split()[0],
+        "os_release":os_info.split("\n")[0],
+        "os_type": "Linux",
+    }
+    return data_dic
+
+
+def cpuinfo():
+    base_cmd = 'cat /proc/cpuinfo'
+
+    raw_data = {
+        'cpu_model' : "%s |grep 'model name' |head -1 " % base_cmd,
+        'cpu_count' :  "%s |grep  'processor'|wc -l " % base_cmd,
+        'cpu_core_count' : "%s |grep 'cpu cores' |awk -F: '{SUM +=$2} END {print SUM}'" % base_cmd,
+    }
+
+    for k,cmd in raw_data.items():
+        try:
+            cmd_res = subprocess.Popen(
+                cmd,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            ).stdout.read().decode('utf8')
+            raw_data[k] = cmd_res.strip()
+
+        #except Exception,e:
+        except ValueError as e:
+            print(e)
+
+    data = {
+        "cpu_count": raw_data["cpu_count"],
+        "cpu_core_count": raw_data["cpu_core_count"]
+    }
+    cpu_model = raw_data["cpu_model"].split(":")
+    if len(cpu_model) > 1:
+        data["cpu_model"] = cpu_model[1].strip()
+    else:
+        data["cpu_model"] = -1
+
+    return data
+
+
+if __name__=="__main__":
+    print(collect())

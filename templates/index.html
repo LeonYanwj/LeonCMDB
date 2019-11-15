@@ -1,0 +1,850 @@
+{% extends 'master.html' %}
+{% block mytotol %} 主页 {% endblock %}
+{% block mycss %} {% endblock %}
+{% block script %}
+    <div id="container" class="effect aside-float aside-bright mainnav-lg">
+        <header id="navbar">
+            <div id="navbar-container" class="boxed">
+                <div class="navbar-header">
+                    <a href="index.html" class="navbar-brand">
+                        <img src="/static/img/logo.png" alt="Nifty Logo" class="brand-icon">
+                        <div class="brand-title">
+                            <span class="brand-text">Lycmdb</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-content clearfix">
+                    <ul class="nav navbar-top-links pull-left">
+                        <li class="tgl-menu-btn">
+                            <a class="mainnav-toggle" href="#">
+                                <i class="demo-pli-view-list"></i>
+                            </a>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                                <i class="demo-pli-bell"></i>
+                                <span class="badge badge-header badge-danger"></span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-md">
+                                <div class="pad-all bord-btm">
+                                    <p class="text-semibold text-main mar-no">You have 9 notifications.</p>
+                                </div>
+                                <div class="nano scrollable">
+                                    <div class="nano-content">
+                                        <ul class="head-list">
+                                            <li>
+                                                <a href="#">
+                                                    <div class="clearfix">
+                                                        <p class="pull-left">Database Repair</p>
+                                                        <p class="pull-right">70%</p>
+                                                    </div>
+                                                    <div class="progress progress-sm">
+                                                        <div style="width: 70%;" class="progress-bar">
+                                                            <span class="sr-only">70% Complete</span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <div class="clearfix">
+                                                        <p class="pull-left">Upgrade Progress</p>
+                                                        <p class="pull-right">10%</p>
+                                                    </div>
+                                                    <div class="progress progress-sm">
+                                                        <div style="width: 10%;"
+                                                             class="progress-bar progress-bar-warning">
+                                                            <span class="sr-only">10% Complete</span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="media" href="#">
+                                                    <span class="badge badge-success pull-right">90%</span>
+                                                    <div class="media-left">
+                                                        <i class="demo-pli-data-settings icon-2x"></i>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">HDD is full</div>
+                                                        <small class="text-muted">50 minutes ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="media" href="#">
+                                                    <div class="media-left">
+                                                        <i class="demo-pli-file-edit icon-2x"></i>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">Write a news article</div>
+                                                        <small class="text-muted">Last Update 8 hours ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="media" href="#">
+                                                    <span class="label label-danger pull-right">New</span>
+                                                    <div class="media-left">
+                                                        <i class="demo-pli-speech-bubble-7 icon-2x"></i>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">Comment Sorting</div>
+                                                        <small class="text-muted">Last Update 8 hours ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="media" href="#">
+                                                    <div class="media-left">
+                                                        <i class="demo-pli-add-user-plus-star icon-2x"></i>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">New User Registered</div>
+                                                        <small class="text-muted">4 minutes ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="bg-gray">
+                                                <a class="media" href="#">
+                                                    <div class="media-left">
+                                                        <img class="img-circle img-sm" alt="Profile Picture"
+                                                             src="/static/img/profile-photos/9.png">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">Lucy sent you a message</div>
+                                                        <small class="text-muted">30 minutes ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+
+                                            <!-- Dropdown list-->
+                                            <li class="bg-gray">
+                                                <a class="media" href="#">
+                                                    <div class="media-left">
+                                                        <img class="img-circle img-sm" alt="Profile Picture"
+                                                             src="/static/img/profile-photos/3.png">
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="text-nowrap">Jackson sent you a message</div>
+                                                        <small class="text-muted">40 minutes ago</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <!--Dropdown footer-->
+                                <div class="pad-all bord-top">
+                                    <a href="#" class="btn-link text-dark box-block">
+                                        <i class="fa fa-angle-right fa-lg pull-right"></i>Show All Notifications
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-top-links pull-right">
+                        <li class="dropdown">
+                            <a id="demo-lang-switch" class="lang-selector dropdown-toggle" href="#"
+                               data-toggle="dropdown">
+                                <span class="lang-selected">
+                                    <img class="lang-flag" src="/static/img/flags/united-kingdom.png" alt="English">
+                                </span>
+                            </a>
+
+                            <!--Language selector menu-->
+                            <ul class="head-list dropdown-menu">
+                                <li>
+                                    <!--English-->
+                                    <a href="#" class="active">
+                                        <img class="lang-flag" src="/static/img/flags/united-kingdom.png" alt="English">
+                                        <span class="lang-id">EN</span>
+                                        <span class="lang-name">English</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <!--France-->
+                                    <a href="#">
+                                        <img class="lang-flag" src="/static/img/flags/france.png" alt="France">
+                                        <span class="lang-id">FR</span>
+                                        <span class="lang-name">Fran&ccedil;ais</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <!--Germany-->
+                                    <a href="#">
+                                        <img class="lang-flag" src="/static/img/flags/germany.png" alt="Germany">
+                                        <span class="lang-id">DE</span>
+                                        <span class="lang-name">Deutsch</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <!--Italy-->
+                                    <a href="#">
+                                        <img class="lang-flag" src="/static/img/flags/italy.png" alt="Italy">
+                                        <span class="lang-id">IT</span>
+                                        <span class="lang-name">Italiano</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <!--Spain-->
+                                    <a href="#">
+                                        <img class="lang-flag" src="/static/img/flags/spain.png" alt="Spain">
+                                        <span class="lang-id">ES</span>
+                                        <span class="lang-name">Espa&ntilde;ol</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="dropdown-user" class="dropdown">
+                            <a href="#" data-toggle="dropdown" class="dropdown-toggle text-right">
+                                <span class="pull-right">
+                                    <!--<img class="img-circle img-user media-object" src="img/profile-photos/1.png" alt="Profile Picture">-->
+                                    <i class="demo-pli-male ic-user"></i>
+                                </span>
+                                <div class="username hidden-xs">{{ request.user }}</div>
+                            </a>
+
+
+                            <div class="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
+
+                                <!-- Dropdown heading  -->
+                                <div class="pad-all bord-btm">
+                                    <p class="text-main mar-btm"><span class="text-bold">750GB</span> of 1,000GB Used
+                                    </p>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar" style="width: 70%;">
+                                            <span class="sr-only">70%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ul class="head-list">
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-pli-male icon-lg icon-fw"></i> Profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="badge badge-danger pull-right">9</span>
+                                            <i class="demo-pli-mail icon-lg icon-fw"></i> Messages
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <span class="label label-success pull-right">New</span>
+                                            <i class="demo-pli-gear icon-lg icon-fw"></i> Settings
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-pli-information icon-lg icon-fw"></i> Help
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-pli-computer-secure icon-lg icon-fw"></i> Lock screen
+                                        </a>
+                                    </li>
+                                </ul>
+                                <div class="pad-all text-right">
+                                    <a href="pages-login.html" class="btn btn-primary">
+                                        <i class="demo-pli-unlock"></i> Logout
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <a href="#" class="aside-toggle navbar-aside-icon">
+                                <i class="pci-ver-dots"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <div class="boxed">
+            <div id="content-container">
+                <div id="page-title">
+                    <h1 class="page-header text-overflow">服务器信息查询</h1>
+                </div>
+                <div id="page-content">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">服务器列表</h3>
+                        </div>
+
+                        <!-- Foo Table - Filtering -->
+                        <!--===================================================-->
+                        <div class="panel-body">
+                            <table id="demo-foo-filtering" class="table table-bordered table-hover toggle-circle"
+                                   data-page-size="7">
+                                <thead>
+                                <tr>
+                                    <th data-toggle="true">主机名</th>
+                                    <th>系统类型</th>
+                                    <th data-hide="phone, tablet">IP地址</th>
+                                    <th data-hide="phone, tablet">添加日期</th>
+                                    <th data-hide="phone, tablet">状态</th>
+                                </tr>
+                                </thead>
+                                <div class="pad-btm form-inline">
+                                    <div class="row">
+                                        <div class="col-sm-6 text-xs-center">
+                                            <div class="form-group">
+                                                <label class="control-label">查询状态</label>
+                                                <select id="demo-foo-filter-status" class="form-control">
+                                                    <option value="">所有</option>
+                                                    <option value="active">开启</option>
+                                                    <option value="disabled">关闭</option>
+                                                    <option value="suspended">下线</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 text-xs-center text-right">
+                                            <div class="form-group">
+                                                <input id="demo-foo-search" type="text" placeholder="Search"
+                                                       class="form-control" autocomplete="off">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <tbody>
+                                <tr>
+                                    <td>Isidra</td>
+                                    <td>Boudreaux</td>
+                                    <td>Traffic Court Referee</td>
+                                    <td>22 Jun 1972</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Shona</td>
+                                    <td>Woldt</td>
+                                    <td>Airline Transport Pilot</td>
+                                    <td>3 Oct 1981</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Granville</td>
+                                    <td>Leonardo</td>
+                                    <td>Business Services Sales Representative</td>
+                                    <td>19 Apr 1969</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Easer</td>
+                                    <td>Dragoo</td>
+                                    <td>Drywall Stripper</td>
+                                    <td>13 Dec 1977</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maple</td>
+                                    <td>Halladay</td>
+                                    <td>Aviation Tactical Readiness Officer</td>
+                                    <td>30 Dec 1991</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maxine</td>
+                                    <td><a href="#">Woldt</a></td>
+                                    <td><a href="#">Business Services Sales Representative</a></td>
+                                    <td>17 Oct 1987</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lorraine</td>
+                                    <td>Mcgaughy</td>
+                                    <td>Hemodialysis Technician</td>
+                                    <td>11 Nov 1983</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lizzee</td>
+                                    <td><a href="#">Goodlow</a></td>
+                                    <td>Technical Services Librarian</td>
+                                    <td>1 Nov 1961</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Judi</td>
+                                    <td>Badgett</td>
+                                    <td>Electrical Lineworker</td>
+                                    <td>23 Jun 1981</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lauri</td>
+                                    <td>Hyland</td>
+                                    <td>Blackjack Supervisor</td>
+                                    <td>15 Nov 1985</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Isidra</td>
+                                    <td>Boudreaux</td>
+                                    <td>Traffic Court Referee</td>
+                                    <td>22 Jun 1972</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Shona</td>
+                                    <td>Woldt</td>
+                                    <td>Airline Transport Pilot</td>
+                                    <td>3 Oct 1981</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Granville</td>
+                                    <td>Leonardo</td>
+                                    <td>Business Services Sales Representative</td>
+                                    <td>19 Apr 1969</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Easer</td>
+                                    <td>Dragoo</td>
+                                    <td>Drywall Stripper</td>
+                                    <td>13 Dec 1977</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maple</td>
+                                    <td>Halladay</td>
+                                    <td>Aviation Tactical Readiness Officer</td>
+                                    <td>30 Dec 1991</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maxine</td>
+                                    <td><a href="#">Woldt</a></td>
+                                    <td><a href="#">Business Services Sales Representative</a></td>
+                                    <td>17 Oct 1987</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lorraine</td>
+                                    <td>Mcgaughy</td>
+                                    <td>Hemodialysis Technician</td>
+                                    <td>11 Nov 1983</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lizzee</td>
+                                    <td><a href="#">Goodlow</a></td>
+                                    <td>Technical Services Librarian</td>
+                                    <td>1 Nov 1961</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Judi</td>
+                                    <td>Badgett</td>
+                                    <td>Electrical Lineworker</td>
+                                    <td>23 Jun 1981</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lauri</td>
+                                    <td>Hyland</td>
+                                    <td>Blackjack Supervisor</td>
+                                    <td>15 Nov 1985</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Isidra</td>
+                                    <td>Boudreaux</td>
+                                    <td>Traffic Court Referee</td>
+                                    <td>22 Jun 1972</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Shona</td>
+                                    <td>Woldt</td>
+                                    <td>Airline Transport Pilot</td>
+                                    <td>3 Oct 1981</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Granville</td>
+                                    <td>Leonardo</td>
+                                    <td>Business Services Sales Representative</td>
+                                    <td>19 Apr 1969</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Easer</td>
+                                    <td>Dragoo</td>
+                                    <td>Drywall Stripper</td>
+                                    <td>13 Dec 1977</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maple</td>
+                                    <td>Halladay</td>
+                                    <td>Aviation Tactical Readiness Officer</td>
+                                    <td>30 Dec 1991</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Maxine</td>
+                                    <td><a href="#">Woldt</a></td>
+                                    <td><a href="#">Business Services Sales Representative</a></td>
+                                    <td>17 Oct 1987</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lorraine</td>
+                                    <td>Mcgaughy</td>
+                                    <td>Hemodialysis Technician</td>
+                                    <td>11 Nov 1983</td>
+                                    <td><span class="label label-table label-dark">Disabled</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lizzee</td>
+                                    <td><a href="#">Goodlow</a></td>
+                                    <td>Technical Services Librarian</td>
+                                    <td>1 Nov 1961</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Judi</td>
+                                    <td>Badgett</td>
+                                    <td>Electrical Lineworker</td>
+                                    <td>23 Jun 1981</td>
+                                    <td><span class="label label-table label-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lauri</td>
+                                    <td>Hyland</td>
+                                    <td>Blackjack Supervisor</td>
+                                    <td>15 Nov 1985</td>
+                                    <td><span class="label label-table label-danger">Suspended</span></td>
+                                </tr>
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="text-right">
+                                            <ul class="pagination"></ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <!--===================================================-->
+                        <!-- End Foo Table - Filtering -->
+
+                    </div>
+                </div>
+            </div>
+            <aside id="aside-container">
+                <div id="aside">
+                    <div class="nano">
+                    </div>
+                </div>
+            </aside>
+            <nav id="mainnav-container">
+                <div id="mainnav">
+                    <div id="mainnav-menu-wrap">
+                        <div class="nano">
+                            <div class="nano-content">
+                                <ul id="mainnav-menu" class="list-group">
+                                    <!--Category name-->
+                                    <li class="list-header">导航</li>
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="index.html">
+                                            <i class="demo-psi-home"></i>
+                                            <span class="menu-title">
+												<strong>仪表盘</strong>
+											</span>
+                                        </a>
+                                    </li>
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-split-vertical-2"></i>
+                                            <span class="menu-title">
+												<strong>布局</strong>
+											</span>
+                                            <i class="arrow"></i>
+                                        </a>
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="layouts-collapsed-navigation.html">Collapsed Navigation</a>
+                                            </li>
+                                            <li><a href="layouts-offcanvas-navigation.html">Off-Canvas Navigation</a>
+                                            </li>
+                                            <li><a href="layouts-offcanvas-slide-in-navigation.html">Slide-in
+                                                Navigation</a></li>
+                                            <li><a href="layouts-offcanvas-revealing-navigation.html">Revealing
+                                                Navigation</a></li>
+                                            <li class="list-divider"></li>
+                                            <li><a href="layouts-aside-right-side.html">Aside on the right side</a></li>
+                                            <li><a href="layouts-aside-left-side.html">Aside on the left side</a></li>
+                                            <li><a href="layouts-aside-dark-theme.html">Dark version of aside</a></li>
+                                            <li class="list-divider"></li>
+                                            <li><a href="layouts-fixed-navbar.html">Fixed Navbar</a></li>
+                                            <li><a href="layouts-fixed-footer.html">Fixed Footer</a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="widgets.html">
+                                            <i class="demo-psi-gear-2"></i>
+                                            <span class="menu-title">
+												<strong>工具</strong>
+												<span class="pull-right badge badge-warning">24</span>
+											</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="list-divider"></li>
+
+                                    <!--Category name-->
+                                    <li class="list-header">组件</li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-boot-2"></i>
+                                            <span class="menu-title">UI模型</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="ui-buttons.html">Buttons</a></li>
+                                            <li><a href="ui-panels.html">Panels</a></li>
+                                            <li><a href="ui-modals.html">Modals</a></li>
+                                            <li><a href="ui-progress-bars.html">Progress bars</a></li>
+                                            <li><a href="ui-components.html">Components</a></li>
+                                            <li><a href="ui-typography.html">Typography</a></li>
+                                            <li><a href="ui-list-group.html">List Group</a></li>
+                                            <li><a href="ui-tabs-accordions.html">Tabs &amp; Accordions</a></li>
+                                            <li><a href="ui-alerts-tooltips.html">Alerts &amp; Tooltips</a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-pen-5"></i>
+                                            <span class="menu-title">表单</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="forms-general.html">General</a></li>
+                                            <li><a href="forms-components.html">Advanced Components</a></li>
+                                            <li><a href="forms-validation.html">Validation</a></li>
+                                            <li><a href="forms-wizard.html">Wizard</a></li>
+                                            <li><a href="forms-file-upload.html">File Upload</a></li>
+                                            <li><a href="forms-text-editor.html">Text Editor</a></li>
+                                            <li><a href="forms-markdown.html">Markdown</a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li class="active-sub">
+                                        <a href="#">
+                                            <i class="demo-psi-receipt-4"></i>
+                                            <span class="menu-title">表格</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse in">
+                                            <li><a href="tables-static.html">Static Tables</a></li>
+                                            <li><a href="tables-bootstrap.html">Bootstrap Tables</a></li>
+                                            <li><a href="tables-datatable.html">Data Tables</a></li>
+                                            <li class="active-link"><a href="tables-footable.html">Foo Tables</a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="charts.html">
+                                            <i class="demo-psi-bar-chart"></i>
+                                            <span class="menu-title">绘图</span>
+                                        </a>
+                                    </li>
+
+                                    <li class="list-divider"></li>
+
+                                    <!--Category name-->
+                                    <li class="list-header">更多</li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-repair"></i>
+                                            <span class="menu-title">资产多样化</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="misc-timeline.html">Timeline</a></li>
+                                            <li><a href="misc-calendar.html">Calendar</a></li>
+                                            <li><a href="misc-maps.html">Google Maps</a></li>
+                                            <li><a href="xplugins-notifications.html">Notifications<span
+                                                    class="label label-purple pull-right">Improved</span></a></li>
+                                            <li><a href="misc-nestable-list.html">Nestable List<span
+                                                    class="label label-info pull-right">New</span></a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-mail"></i>
+                                            <span class="menu-title">邮箱</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="mailbox.html">Inbox</a></li>
+                                            <li><a href="mailbox-message.html">View Message</a></li>
+                                            <li><a href="mailbox-compose.html">Compose Message</a></li>
+                                            <li><a href="mailbox-templates.html">Email Templates<span
+                                                    class="label label-info pull-right">New</span></a></li>
+
+                                        </ul>
+                                    </li>
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-file-html"></i>
+                                            <span class="menu-title">页面</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="pages-blank.html">Blank Page</a></li>
+                                            <li><a href="pages-profile.html">Profile</a></li>
+                                            <li><a href="pages-invoice.html">Invoice<span
+                                                    class="label label-info pull-right">New</span></a></li>
+                                            <li><a href="pages-search-results.html">Search Results</a></li>
+                                            <li><a href="pages-faq.html">FAQ</a></li>
+                                            <li class="list-divider"></li>
+                                            <li><a href="pages-404.html">404 Error</a></li>
+                                            <li><a href="pages-500.html">500 Error</a></li>
+                                            <li class="list-divider"></li>
+                                            <li><a href="pages-login.html">Login</a></li>
+                                            <li><a href="pages-register.html">Register</a></li>
+                                            <li><a href="pages-password-reminder.html">Password Reminder</a></li>
+                                            <li><a href="pages-lock-screen.html">Lock Screen</a></li>
+
+                                        </ul>
+                                    </li>
+
+
+                                    <!--Menu list item-->
+                                    <li>
+                                        <a href="#">
+                                            <i class="demo-psi-tactic"></i>
+                                            <span class="menu-title">菜单等级</span>
+                                            <i class="arrow"></i>
+                                        </a>
+
+                                        <!--Submenu-->
+                                        <ul class="collapse">
+                                            <li><a href="#">Second Level Item</a></li>
+                                            <li><a href="#">Second Level Item</a></li>
+                                            <li><a href="#">Second Level Item</a></li>
+                                            <li class="list-divider"></li>
+                                            <li>
+                                                <a href="#">Third Level<i class="arrow"></i></a>
+
+                                                <!--Submenu-->
+                                                <ul class="collapse">
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <a href="#">Third Level<i class="arrow"></i></a>
+
+                                                <!--Submenu-->
+                                                <ul class="collapse">
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li class="list-divider"></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                    <li><a href="#">Third Level Item</a></li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+
+                                </ul>
+
+
+                                <!--Widget-->
+                                <!--================================-->
+                                <div class="mainnav-widget">
+
+                                    <!-- Show the button on collapsed navigation -->
+                                    <div class="show-small">
+                                        <a href="#" data-toggle="menu-widget" data-target="#demo-wg-server">
+                                            <i class="demo-pli-monitor-2"></i>
+                                        </a>
+                                    </div>
+
+                                    <!-- Hide the content on collapsed navigation -->
+                                    <div id="demo-wg-server" class="hide-small mainnav-widget-content">
+                                        <ul class="list-group">
+                                            <li class="list-header pad-no pad-ver">Server Status</li>
+                                            <li class="mar-btm">
+                                                <span class="label label-primary pull-right">15%</span>
+                                                <p>CPU Usage</p>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar progress-bar-primary" style="width: 15%;">
+                                                        <span class="sr-only">15%</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="mar-btm">
+                                                <span class="label label-purple pull-right">75%</span>
+                                                <p>Bandwidth</p>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar progress-bar-purple" style="width: 75%;">
+                                                        <span class="sr-only">75%</span>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="pad-ver"><a href="#" class="btn btn-success btn-bock">View
+                                                Details</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!--================================-->
+                                <!--End widget-->
+
+                            </div>
+                        </div>
+                    </div>
+                    <!--================================-->
+                    <!--End menu-->
+
+                </div>
+            </nav>
+        </div>
+    </div>
+{% endblock %}

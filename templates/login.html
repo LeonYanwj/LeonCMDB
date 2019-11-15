@@ -1,0 +1,61 @@
+{% extends 'master.html' %}
+
+{% block mytotol %} 登录 {% endblock %}
+{% block mycss %}
+    <style>
+        .demo-my-bg{
+            background-image : url("/static/img/balloon.jpg");
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+    <div id="container" class="cls-container">
+		<div id="bg-overlay" class="bg-img" style="background-image: url(/static/img/bg-img-3.jpg)"></div>
+		<div class="cls-content">
+		    <div class="cls-content-sm panel">
+		        <div class="panel-body">
+		            <div class="mar-ver pad-btm">
+		                <h1 class="h3">用户登录</h1>
+		                <p>使用你的用户登录</p>
+		            </div>
+		            <form action="/login.html/" method="POST">
+		                <div class="form-group">
+		                    <input type="text" name='username' class="form-control" placeholder="用户名" value="{{ name }}">
+		                </div>
+		                <div class="form-group">
+		                    <input type="password" name="password" class="form-control" placeholder="密码" value="{{ pwd }}">
+		                </div>
+		                <div class="checkbox pad-btm text-left">
+		                    <input id="demo-form-checkbox" class="magic-checkbox" type="checkbox">
+		                    <label for="demo-form-checkbox">记住我</label>
+		                </div>
+		                <button class="btn btn-primary btn-lg btn-block" type="submit">登录</button>
+		            </form>
+		        </div>
+		
+		        <div class="pad-all">
+		            <a href="#" class="btn-link mar-rgt">忘记密码 ?</a>
+		            <a href="#" class="btn-link mar-lft">注册</a>
+		
+		            <div class="media pad-top bord-top">
+		                <div class="pull-right">
+		                    <a href="#" class="pad-rgt"><i class="psi-facebook icon-lg text-primary"></i></a>
+		                    <a href="#" class="pad-rgt"><i class="psi-twitter icon-lg text-info"></i></a>
+		                    <a href="#" class="pad-rgt"><i class="psi-google-plus icon-lg text-danger"></i></a>
+		                </div>
+		                <div class="media-body text-left">
+		                    第三方登录
+		                </div>
+		            </div>
+		        </div>
+		    </div>
+		</div>
+    </div>
+{% endblock %}
+
+{% block myjs %}
+    <script src="/static/js/jquery.min.js">
+
+    </script>
+{% endblock %}
