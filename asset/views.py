@@ -8,7 +8,7 @@ import django.utils.timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from asset import models
-# Create your views here.
+# Create your views heres.
 
 
 @csrf_exempt
