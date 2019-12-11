@@ -48,8 +48,10 @@ class Asset(object):
             #2. 如果能找到对应资产，就返回资产id给客户端
             if not only_check_sn: #False
                 self.asset_obj = models.Asset.objects.get(id=int(data['asset_id']), sn=data['sn'])
+                print("老资产",self.asset_obj)
             else: #新资产 True
                 self.asset_obj = models.Asset.objects.get(sn=data['sn'])
+                print("新资产",self.asset_obj)
             return True
 
         except ObjectDoesNotExist as e: #找不到资产
@@ -65,6 +67,7 @@ class Asset(object):
         data： 客户端汇报过来的数据字典
         :return:
         '''
+        # 拿到客户端传过来的资产数据
         data = self.request.POST.get("asset_data")
         response = {}
         if data:

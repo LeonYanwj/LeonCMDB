@@ -8,8 +8,7 @@ import django.utils.timezone
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from asset import models
-# Create your views heres.
-
+# Create your views here.
 
 @csrf_exempt
 def asset_with_no_asset_id(request):
@@ -32,7 +31,8 @@ def asset_report(requests):
 
 @login_required
 def index(requests):
-    return render(requests,'index.html')
+    hosts_obj = models.Asset.objects.all()
+    return render(requests,'index.html',locals())
 
 @login_required
 def logout(request):

@@ -73,7 +73,7 @@ class ArgvHandler(object):
             else:
                 url = "http://%s%s" %(settings.Params['server'],settings.Params['urls'][action_type])
 
-            url =  self.__attach_token(url)
+            # url =  self.__attach_token(url)
             print('Connecting [%s], it may take a minute' % url)
             if method == "get":
                 args = ""
@@ -162,7 +162,7 @@ class ArgvHandler(object):
 
     def __update_asset_id(self,new_asset_id):
         asset_id_file = settings.Params['asset_id']
-        f = open(asset_id_file,"wb")
+        f = open(asset_id_file,"w")
         f.write(str(new_asset_id))
         f.close()
 

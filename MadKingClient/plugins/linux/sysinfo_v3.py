@@ -77,14 +77,14 @@ def diskinfo():
             dic_data["User Capacity"] = size_str
             dic_data["Vendor"] = "Cloud"
             raw_data.append(dic_data)
-            dic_data = None
+            dic_data = {}
         else:
             for line in res.split('\n'):
                 for filter_line in grep_pattern:
                     if line.startswith(filter_line):
                         dic_data[line.split(':')[0].strip()] = line.split(':')[1].strip()
             raw_data.append(dic_data)
-            dic_data = None
+            dic_data = {}
     return {'physical_disk_driver': raw_data}
 
 
