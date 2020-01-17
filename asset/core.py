@@ -215,10 +215,11 @@ class Asset(object):
             data[identify_field] = k
 
     def __verify_field(self, data_set, field_key, data_type, required=True):
-        field_val = data_set.get(field_key) #
+        #self.__verify_field(self.clean_data, 'manufactory', str)
+        field_val = data_set.get(field_key) # -1
         if field_val:
             try:
-                data_set[field_key] = data_type(field_val) #str(dsffsdf)
+                data_set[field_key] = data_type(field_val) #str(-1)
             except ValueError as e:
                 self.response_msg('error', 'InvalidField',
                                   "The field [%s]'s data type is invalid, the correct data type should be [%s] " % (
@@ -322,7 +323,7 @@ class Asset(object):
 
     def __create_cpu_component(self, ignore_errs=False):
         try:
-            self.__verify_field(self.clean_data, 'model', str)
+            self.__verify_field(self.clean_data, 'cpu_model', str)
             self.__verify_field(self.clean_data, 'cpu_count', int)
             self.__verify_field(self.clean_data, 'cpu_core_count', int)
             if not len(self.response['error']) or ignore_errs == True:  # no processing when there's no error happend
@@ -348,7 +349,7 @@ class Asset(object):
                 try:
                     #self.__verify_field(disk_item, 'slot', str)
                     self.__verify_field(disk_item, 'capacity', float)
-                    self.__verify_field(disk_item, 'iface_type', str)
+                    # self.__verify_field(disk_item, 'iface_type', str)
                     self.__verify_field(disk_item, 'model', str)
                     if not len(self.response['error']):  # no processing when there's no error happend
                         data_set = {

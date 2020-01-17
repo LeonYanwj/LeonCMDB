@@ -549,3 +549,4 @@
 2015-11-12-02:15:58	WARNING	{u'AssetUpdateWarning': u"Asset component [VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a sn:VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a]'s field [raid_type] is not provided in reporting data "}
 2015-11-12-02:15:59	WARNING	{u'AssetUpdateWarning': u"Asset component [VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a sn:VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a]'s field [raid_type] is not provided in reporting data "}
 2015-11-12-02:20:24	WARNING	{u'AssetUpdateWarning': u"Asset component [VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a sn:VMware-56 4d ee b6 68 8a d4 aa-c3 28 e6 c5 1f 9d db 4a]'s field [raid_type] is not provided in reporting data "}
+2019-12-31-13:47:52	ERROR	{'AssetDataInvalid': 'Cannot find asset object in DB by using asset id [1] and SN [00359-OEM-8992687-00006] '}

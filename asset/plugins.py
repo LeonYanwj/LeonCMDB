@@ -1,5 +1,5 @@
 from asset import models
-
+import json
 class PageInfo(object):
     def __init__(self,current_page,per_page_num,all_count,base_url,page_range=7):
         """
@@ -66,3 +66,57 @@ class PageInfo(object):
         page_list.append(nex)
 
         return " ".join(page_list)
+
+
+class ExAasset(object):
+    def __init__(self,request,):
+        self.request = request
+        self.mandatory_fields = ['sn', 'asset_id', 'asset_type']
+        self.response = {
+            'error': [],
+            'info': [],
+            'warning': []
+        }
+
+    def response_msg(self, msg_type, key, msg):
+        if msg_type in self.response:
+            self.response[msg_type].append({key: msg})
+        else:
+            raise ValueError
+
+    def mandatory_check(self, data, only_check_sn=False):
+        """检查客户端传递过来的数据,检查特定字段是否包含"""
+        for field in self.mandatory_fields:
+            if field not in data:
+                "传过来的字典中不包含sn，asset_type等key"
+                self.response_msg(
+                    'error', 'MandatoryCheckFailed',
+                    "The field [%s] is mandatory and not provided in your reporting data" % field
+                )
+        if self.response['error']:
+            return False
+
+
+
+    def data_is_valid_without_id(self,db_obj=None):
+        '''when there's no asset id in reporting data ,goes through this function fisrt'''
+        if db_obj:
+            #新资产走这一步，db.obj.data==asset所有数据
+            data = db_obj.data
+        else:
+            data = self.request.POST.get("asset_data")
+
+        if data:
+            try:
+                data = json.loads(data)
+                asset_obj = models.Asset.objects.get_or_create(sn=data.get('sn'), name=data.get(
+                    'sn'))  # push asset id into reporting data before doing the mandatory check
+                data['asset_id'] = asset_obj[0].id
+                self.mandatory_check(data)
+                self.clean_data = data
+                if not self.response['error']:
+                    return True
+            except ValueError as e:
+                self.response_msg('error', 'AssetDataInvalid', str(e))
+        else:
+            self.response_msg('error', 'AssetDataInvalid', "The reported asset data is not valid or provided")

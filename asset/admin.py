@@ -2,6 +2,7 @@
 from django.contrib import admin
 from asset import models
 from asset import core
+from asset import plugins
 # from asset import core
 
 # class ServerInline(admin.TabularInline):

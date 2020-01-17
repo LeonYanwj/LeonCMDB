@@ -74,15 +74,20 @@ def diskinfo():
         if "%s: Unable to detect device type"%disk in res:
             size = subprocess.Popen("fdisk -l %s |grep Disk |sed -n 1p|awk  '{print $3}'"%disk,shell=True,stdout=subprocess.PIPE).stdout.read().decode('utf-8').strip()
             size_str = size + "GB"
-            dic_data["User Capacity"] = size_str
-            dic_data["Vendor"] = "Cloud"
+            dic_data["capacity"] = size_str
+            dic_data["model"] = "Cloud"
             raw_data.append(dic_data)
             dic_data = {}
         else:
             for line in res.split('\n'):
-                for filter_line in grep_pattern:
-                    if line.startswith(filter_line):
-                        dic_data[line.split(':')[0].strip()] = line.split(':')[1].strip()
+                if line.startswith("Vendor"):
+                    dic_data['model'] = line.split(":")[1].strip()
+                elif line.startswith("User Capacity"):
+                    desc_disk = line.split(":")[1]
+                    str_disk = desc_disk.split()[0]
+                    size_b = int("".join(re.findall(r'\d+',str_disk)))
+                    size_gb = size_b / 1024 / 1024 / 1024
+                    dic_data['capacity'] = size_gb
             raw_data.append(dic_data)
             dic_data = {}
     return {'physical_disk_driver': raw_data}
