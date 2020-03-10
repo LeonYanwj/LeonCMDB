@@ -14,7 +14,7 @@ def collect():
     for key in filter_keys:
         try:
             cmd_res = subprocess.Popen(
-                "sudo dmidecode -t system|grep '%s'",
+                "sudo dmidecode -t system|grep '%s'"%key,
                 shell=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
@@ -50,32 +50,31 @@ def diskinfo():
     :return: {'physical_disk_driver':data}
     '''
     f = subprocess.Popen('fdisk -l',shell=True,stdout=subprocess.PIPE).stdout.read().decode('utf-8')
-    disk_list = []
-    raw_data = []
-    grep_pattern = ['Vendor', 'Product', 'User Capacity', 'Logical block size', ]
+    disk_data = f.split("\n\nDisk")
     dic_data = {}
-    for line in f.split("\n"):
-        if line.startswith('Disk'):
-            data = re.findall(r'Disk \/dev\/[a-z]{3}:',line)
-            if data:
-                disk_device_name = re.search(r'(Disk) (?P<name>\/dev\/[a-z]{3})',line)
-                disk_dic = disk_device_name.groupdict()
-                disk_name = disk_dic.get('name')
-                disk_list.append(disk_name)
-    # 第三方共有云在获取磁盘信息的时候使用smartctl无法取值。只能使用fdisk拉取基本属性
-    for disk in disk_list:
+    disk_dict = {}
+    raw_data = []
+    for partition in disk_data:
+        disk_obj = re.findall(r"\/dev\/[a-z]{3}",partition)
+        disk_obj = list(set(disk_obj))
+        disk_name = disk_obj[0]
+        slot_obj = re.findall(r"Disk identifier: .+",partition)
+        slot = slot_obj[0].split(":")[1]
+        disk_dict[disk_name] = slot
+
+    for disk in disk_dict.keys():
         res = subprocess.Popen(
-            'smartctl  --all %s'%disk,
+            'smartctl --all %s'%disk,
             shell=True,
             stdout=subprocess.PIPE,
             stdin=subprocess.PIPE
         ).stdout.read().decode('utf-8')
-    #通过测试已经获取到了res的信息，进行下一步的验证
         if "%s: Unable to detect device type"%disk in res:
             size = subprocess.Popen("fdisk -l %s |grep Disk |sed -n 1p|awk  '{print $3}'"%disk,shell=True,stdout=subprocess.PIPE).stdout.read().decode('utf-8').strip()
-            size_str = size + "GB"
+            size_str = size
             dic_data["capacity"] = size_str
             dic_data["model"] = "Cloud"
+            dic_data['slot'] = disk_dict.get(disk)
             raw_data.append(dic_data)
             dic_data = {}
         else:
@@ -88,6 +87,7 @@ def diskinfo():
                     size_b = int("".join(re.findall(r'\d+',str_disk)))
                     size_gb = size_b / 1024 / 1024 / 1024
                     dic_data['capacity'] = size_gb
+                    dic_data['slot'] = disk_dict.get(disk)
             raw_data.append(dic_data)
             dic_data = {}
     return {'physical_disk_driver': raw_data}

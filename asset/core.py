@@ -97,7 +97,8 @@ class Asset(object):
     def save_new_asset_to_approval_zone(self):
         '''When find out it is a new asset, will save the data into approval zone to waiting for IT admin's approvals'''
         asset_sn = self.clean_data.get('sn')
-        asset_already_in_approval_zone = models.NewAssetApprovalZone.objects.get_or_create(sn=asset_sn,
+        try:
+            asset_already_in_approval_zone = models.NewAssetApprovalZone.objects.get_or_create(sn=asset_sn,
                                                                                            data=json.dumps(
                                                                                                self.clean_data),
                                                                                            manufactory=self.clean_data.get(
@@ -122,6 +123,9 @@ class Asset(object):
                                                                                                'os_type'),
 
                                                                                            )
+        except Exception as e:
+            pass
+
         return True
 
     def data_is_valid(self):
