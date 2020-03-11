@@ -257,14 +257,14 @@ class Disk(models.Model):
     slot = models.CharField(u'插槽位',max_length=64,blank=True,null=True)
     model = models.CharField(u'磁盘型号',max_length=128,blank=True,null=True)
     capacity = models.FloatField(u'磁盘容量GB')
-    disk_iface_chioce = (
-        ('SATA','SATA'),
-        ('SAS','SAS'),
-        ('SCSI','SCSI'),
-        ('SSD','SSD'),
-        ('virtual','virtual'),
-    )
-    iface_type = models.CharField(choices=disk_iface_chioce,verbose_name=u'接口类型',max_length=64,default='SATA')
+    # disk_iface_chioce = (
+    #     ('SATA','SATA'),
+    #     ('SAS','SAS'),
+    #     ('SCSI','SCSI'),
+    #     ('SSD','SSD'),
+    #     ('virtual','virtual'),
+    # )
+    iface_type = models.CharField(verbose_name=u'接口类型',max_length=64,null=True,blank=True)
     memo = models.TextField(u'备注',blank=True,null=True)
     create_date = models.DateTimeField(blank=True,auto_now_add=True)
     update_date = models.DateTimeField(blank=True,auto_now=True)
@@ -465,6 +465,20 @@ class EventLog(models.Model):
 
     colored_event_type.allow_tags = True
     colored_event_type.short_description = u'事件类型'
+
+class ReqLog(models.Model):
+    asset = models.ForeignKey(Asset)
+    level_message_chioce = (
+        ('error','error'),
+        ('info','info'),
+        ('warning', 'warning')
+    )
+    level_message = models.CharField(choices=level_message_chioce,verbose_name=u'错误等级',max_length=16)
+    message = models.TextField(verbose_name=r'详细信息',null=True,blank=True)
+
+    class Meta:
+        verbose_name = '操作日志'
+        verbose_name_plural = '操作日志'
 
 class UserAdmin(models.Model):
     user = models.OneToOneField(User)

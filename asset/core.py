@@ -50,6 +50,7 @@ class Asset(object):
                 self.asset_obj = models.Asset.objects.get(id=int(data['asset_id']), sn=data['sn'])
                 print("老资产",self.asset_obj)
             else: #新资产 True
+                # 代码中新资产不会走这
                 self.asset_obj = models.Asset.objects.get(sn=data['sn'])
                 print("新资产",self.asset_obj)
             return True
@@ -172,7 +173,9 @@ class Asset(object):
 
         if data:
             try:
+                # 客户端上报的机器硬件数据
                 data = json.loads(data)
+                # 获取到改资产的sn号
                 asset_obj = models.Asset.objects.get_or_create(sn=data.get('sn'), name=data.get(
                     'sn'))  # push asset id into reporting data before doing the mandatory check
                 data['asset_id'] = asset_obj[0].id
@@ -499,6 +502,7 @@ class Asset(object):
                             print(
                                 '\033[33;1mWarning:cannot find any matches in source data by using key field val [%s],component data is missing in reporting data!\033[0m' % (
                                     key_field_data))
+
                     else:
                         print('\033[31;1mMust be sth wrong,logic should goes to here at all.\033[0m')
                 # compare all the components from DB with the data source from reporting data
