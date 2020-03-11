@@ -30,6 +30,7 @@ class Asset(object):
     def response_msg(self, msg_type, key, msg):
         if msg_type in self.response:
             self.response[msg_type].append({key: msg})
+            models.ReqLog.objects.create(asset=self.asset_obj,level_message=msg_type,message="%s %s"%(key,msg))
         else:
             raise ValueError
 
