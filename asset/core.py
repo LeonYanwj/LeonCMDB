@@ -338,8 +338,8 @@ class Asset(object):
                 data_set = {
                     'asset_id': self.asset_obj.id,
                     'cpu_model': self.clean_data.get('cpu_model'),
-                    'cpu_count': self.clean_data.get('cpu_count'),
-                    'cpu_core_count': self.clean_data.get('cpu_core_count'),
+                    'cpu_count': int(self.clean_data.get('cpu_count')),
+                    'cpu_core_count': int(self.clean_data.get('cpu_core_count')),
                 }
 
                 obj = models.CPU(**data_set)
@@ -355,7 +355,7 @@ class Asset(object):
         if disk_info:
             for disk_item in disk_info:
                 try:
-                    #self.__verify_field(disk_item, 'slot', str)
+                    self.__verify_field(disk_item, 'slot', str)
                     self.__verify_field(disk_item, 'capacity', float)
                     # self.__verify_field(disk_item, 'iface_type', str)
                     self.__verify_field(disk_item, 'model', str)
@@ -364,10 +364,9 @@ class Asset(object):
                             'asset_id': self.asset_obj.id,
                             'sn': disk_item.get('sn'),
                             'slot': disk_item.get('slot'),
-                            'capacity': disk_item.get('capacity'),
+                            'capacity': float(disk_item.get('capacity')),
                             'model': disk_item.get('model'),
                             'iface_type': disk_item.get('iface_type'),
-                            #'manufactory': disk_item.get('manufactory'),
                         }
 
                         obj = models.Disk(**data_set)
