@@ -30,7 +30,7 @@ class Asset(object):
     def response_msg(self, msg_type, key, msg):
         if msg_type in self.response:
             self.response[msg_type].append({key: msg})
-            models.ReqLog.objects.create(asset=self.asset_obj,level_message=msg_type,message="%s %s"%(key,msg))
+            # models.ReqLog.objects.create(asset=self.asset_obj,level_message=msg_type,message="%s %s"%(key,msg))
         else:
             raise ValueError
 
@@ -384,20 +384,20 @@ class Asset(object):
                 try:
                     self.__verify_field(nic_item, 'macaddress', str)
                     if not len(self.response['error']):  # no processing when there's no error happend
-                        data_set = {
-                            'asset_id': self.asset_obj.id,
-                            'name': nic_item.get('name'),
-                            'sn': nic_item.get('sn'),
-                            'macaddress': nic_item.get('macaddress'),
-                            'ipaddress': nic_item.get('ipaddress'),
-                            'bonding': nic_item.get('bonding'),
-                            'model': nic_item.get('model'),
-                            'netmask': nic_item.get('netmask'),
-                        }
+                        if not models.NIC.objects.filter(macaddress=nic_item.get('macaddress')):
+                            data_set = {
+                                'asset_id': self.asset_obj.id,
+                                'name': nic_item.get('name'),
+                                'sn': nic_item.get('sn'),
+                                'macaddress': nic_item.get('macaddress'),
+                                'ipaddress': nic_item.get('ipaddress'),
+                                'bonding': nic_item.get('bonding'),
+                                'model': nic_item.get('model'),
+                                'netmask': nic_item.get('netmask'),
+                            }
 
-                        obj = models.NIC(**data_set)
-                        obj.save()
-
+                            obj = models.NIC(**data_set)
+                            obj.save()
                 except Exception as e:
                     self.response_msg('error', 'ObjectCreationException', 'Object [nic] %s' % str(e))
         else:
@@ -415,7 +415,7 @@ class Asset(object):
                             'asset_id': self.asset_obj.id,
                             'slot': ram_item.get("slot"),
                             'sn': ram_item.get('sn'),
-                            'capacity': ram_item.get('capacity'),
+                            'capacity': int(ram_item.get('capacity')),
                             'model': ram_item.get('model'),
                         }
 

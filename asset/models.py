@@ -291,11 +291,11 @@ class NIC(models.Model):
     asset = models.ForeignKey("Asset")
     name = models.CharField(u'网卡名字',max_length=64,blank=True,null=True)
     sn = models.CharField(u'SN号',max_length=128,blank=True,null=True)
-    model = models.CharField(u'网卡类型',max_length=128,unique=True)
-    macadderss = models.CharField(u'MAC',max_length=64,unique=True)
+    model = models.CharField(u'网卡类型',max_length=16)
+    macaddress = models.CharField(u'MAC',max_length=64,unique=True)
     ipaddress = models.GenericIPAddressField('IP',blank=True,null=True)
     netmask = models.CharField(max_length=64,blank=True,null=True)
-    boding = models.CharField(max_length=64,blank=True,null=True)
+    bonding = models.CharField(max_length=64,blank=True,null=True)
     memo = models.TextField(u'备注',max_length=128,null=True,blank=True)
     create_date = models.DateTimeField(blank=True,auto_now_add=True)
     update_date = models.DateTimeField(blank=True,auto_now=True)
@@ -479,6 +479,9 @@ class ReqLog(models.Model):
     class Meta:
         verbose_name = '操作日志'
         verbose_name_plural = '操作日志'
+
+    def __str__(self):
+        return "资产id: %s 日志等级: %s"%(self.asset.id,self.level_message)
 
 class UserAdmin(models.Model):
     user = models.OneToOneField(User)

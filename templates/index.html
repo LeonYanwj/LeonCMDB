@@ -315,18 +315,15 @@
                                 <tr>
                                     <td>{{ host.name }}</td>
                                     <td>{{ host }}</td>
-                                    <td>Traffic Court Referee</td>
-                                    <td>22 Jun 1972</td>
-                                    <td><span class="label label-table label-success">Active</span></td>
+                                    <td>{{ host.nic_set.first.ipaddress }}</td>
+                                    <td>{{ host.create_date.astimezone }}</td>
+                                    {% if host.status == 0 %}
+                                        <td><span class="label label-table label-success">Active</span></td>
+                                    {% else %}
+                                        <td><span class="label label-table label-success">Down</span></td>
+                                    {% endif %}
                                 </tr>
                                 {% endfor %}
-                                <tr>
-                                    <td>Shona</td>
-                                    <td>Woldt</td>
-                                    <td>Airline Transport Pilot</td>
-                                    <td>3 Oct 1981</td>
-                                    <td><span class="label label-table label-dark">Disabled</span></td>
-                                </tr>
                                 </tbody>
                                 <tfoot>
                                 <tr>
@@ -653,4 +650,12 @@
             </nav>
         </div>
     </div>
+{% endblock %}
+
+{% block myjs %}
+    <script>
+        function hideHost() {
+            $('tbody')
+        }
+    </script>
 {% endblock %}
