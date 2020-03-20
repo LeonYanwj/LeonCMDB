@@ -6,7 +6,7 @@
         <header id="navbar">
             <div id="navbar-container" class="boxed">
                 <div class="navbar-header">
-                    <a href="index.html" class="navbar-brand">
+                    <a href="/index.html" class="navbar-brand">
                         <img src="/static/img/logo.png" alt="Nifty Logo" class="brand-icon">
                         <div class="brand-title">
                             <span class="brand-text">Lycmdb</span>
@@ -284,6 +284,7 @@
                                 <tr>
                                     <th data-toggle="true">主机名</th>
                                     <th>系统类型</th>
+                                    <th data-hide="phone, tablet">发行版本</th>
                                     <th data-hide="phone, tablet">IP地址</th>
                                     <th data-hide="phone, tablet">添加日期</th>
                                     <th data-hide="phone, tablet">状态</th>
@@ -314,8 +315,9 @@
                                 {% for host in hosts_obj %}
                                 <tr>
                                     <td>{{ host.name }}</td>
-                                    <td>{{ host }}</td>
-                                    <td>{{ host.nic_set.first.ipaddress }}</td>
+                                    <td>{{ host.server.os_type }}</td>
+                                    <td>{{ host.server.os_release }}</td>
+                                    <td>{% for ip in host.nic_set.all %} {{ ip.ipaddress }} </br>{% endfor %}</td>
                                     <td>{{ host.create_date.astimezone }}</td>
                                     {% if host.status == 0 %}
                                         <td><span class="label label-table label-success">Active</span></td>
@@ -325,15 +327,6 @@
                                 </tr>
                                 {% endfor %}
                                 </tbody>
-                                <tfoot>
-                                <tr>
-                                    <td colspan="5">
-                                        <div class="text-right">
-                                            <ul class="pagination"></ul>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tfoot>
                             </table>
                         </div>
                         <!--===================================================-->
@@ -654,8 +647,17 @@
 
 {% block myjs %}
     <script>
-        function hideHost() {
-            $('tbody')
-        }
+        var tr_td = $("tbody tr td:first");
+          tr_td.click(function() {
+           var value = $(this).text();
+           $.ajax({
+            url: "/asset/report/test.html",
+            type: "post",
+            data: {'hostname' : value},
+            success: function(data) {
+             alert(data);
+            }
+           })
+          })
     </script>
 {% endblock %}

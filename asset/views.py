@@ -66,3 +66,9 @@ def login(request):
 @login_required
 def root(request):
     return HttpResponseRedirect('/login.html/')
+
+@login_required
+def test(request):
+    res = request.POST.get('hostname')
+    obj = models.Asset.objects.get(name=res)
+    return HttpResponse(obj.manufactory.manufactory)
