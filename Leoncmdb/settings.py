@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'asset',
-    'Lesearch',
+    'salt_restapi',
     'rest_framework'
 ]
 

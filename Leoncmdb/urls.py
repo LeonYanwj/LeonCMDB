@@ -16,12 +16,12 @@ Including another URLconf
 from django.conf.urls import url,include
 from django.contrib import admin
 from asset import urls as asset_urls
-from Leoncmdb import urls
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^asset/',include(asset_urls)),
-    url(r'^search/',include('Lesearch.urls')),
+    url(r'^salt_rest/',include('salt_restapi.urls')),
     url(r'^login.html/$',asset_urls.views.login),
     url(r'^logout/$',asset_urls.views.logout),
     url(r'^index.html/$',asset_urls.views.index),
