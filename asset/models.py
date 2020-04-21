@@ -9,19 +9,16 @@ class AppSystem(models.Model):
     fk2: 发布的流水线可能会和流水线表进行关联
     fk3: 开发团队可能会和团队表进行关联
     """
+    system = models.ForeignKey('System',verbose_name='所属系统')
+    supportteam = models.ManyToManyField('SupportTeam',verbose_name="执行信息",blank=True)
     name = models.CharField(verbose_name="应用系统名称",max_length=200,blank=True,null=True)
     enName = models.CharField("英文简称",max_length=200,blank=True,null=True)
     description = models.CharField("描述",max_length=200,blank=True,null=True)
     state = models.CharField('状态',max_length=50,null=True,blank=True)
     department = models.CharField('组织部门',max_length=50,null=True,blank=True)
-    ownerMainName = models.CharField('所有者',max_length=50,null=True,blank=True)
-    ownerPrepareName = models.CharField('所有者备',max_length=50,null=True,blank=True)
     secuityLev = models.IntegerField('等保等级',null=True,blank=True)
-    secondSup = models.CharField('二线支持团队',max_length=50,null=True,blank=True)
     businessTy = models.CharField('业务类型',max_length=50,null=True,blank=True)
     releasePipeline = models.CharField('发布流水线',max_length=50,null=True,blank=True)
-    developlnt = models.CharField('开发接口人',max_length=50,null=True,blank=True)
-    develoteam = models.CharField('开发团队',max_length=50,null=True,blank=True)
     updateDate = models.DateTimeField(auto_now=True,blank=True)
     createDate = models.DateTimeField(auto_now_add=True,blank=True)
 
@@ -109,4 +106,19 @@ class Cluster(models.Model):
 class ModelName(models.Model):
     name = models.CharField("模块名称",max_length=50,blank=True,null=True)
     env = models.CharField("所处环境",max_length=50,blank=True,null=True)
-    
+
+
+class Server(models.Model):
+    """x86 服务器表"""
+    name = models.CharField("物理机名称",max_length=200,blank=True)
+    serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
+
+class System(models.Model):
+    """虚拟机，真实的业务系统"""
+    server = models.ForeignKey('Server',verbose_name='所属物理机',blank=True)
+    name = models.CharField("物理机名称",max_length=200,blank=True)
+    serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
+
+class SupportTeam(models.Model):
+    """支持团队"""
+    name = models.CharField("名称",max_length=200,blank=True,null=True)
