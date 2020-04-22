@@ -3,15 +3,9 @@ __author__ = 'Leonyan'
 
 
 from django.conf.urls import url,include
-from Lesearch import views
-from rest_framework import routers
+from salt_restapi import views
 
-router = routers.DefaultRouter()
-router.register(r'users',views.UserViewSet)
-router.register(r'groups',views.GroupViewSet)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    url(r'^sj/',views.jfds)
+    url(r'^batch_add/',views.batch_add,name="batch_add"),
 ]

@@ -1,0 +1,10 @@
+{% extends 'master.html' %}
+
+{% block mytotol %} 文件上传 {% endblock %}
+
+{% block script %}
+    <form action="{% url 'batch_add' %}" method="POST" enctype="multipart/form-data">
+    {{ form }}
+        <input type="submit" value="提交">
+    </form>
+{% endblock %}

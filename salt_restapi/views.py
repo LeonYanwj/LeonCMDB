@@ -1,16 +1,22 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from Lesearch.serializers import UserSerializer,GroupSerializer
-
-# Create your views here.
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
+from salt_restapi import forms
+from salt_restapi.core import UploadFile
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
+def batch_add(request):
+    """
+    文件接收 view
+    :param request: 请求信息
+    :return:
+    """
+    if request.method == "POST":
+        agent_form = forms.FileUploadForm(request.POST,request.FILES)
+        if agent_form.is_valid():
+            f = agent_form.cleaned_data['agentMessFile']
+            f_obj = UploadFile(f)
+            f_obj.save_file()
+        return HttpResponse('Upload Success')
+    else:
+        agent_form = forms.FileUploadForm()
+    return render(request,'agent_upload_file.html',{'form':agent_form})

@@ -1,15 +1,19 @@
-#!/usr/bin/env python3
-
-
 import requests
 import json
+try:
+    import cookielib
+except:
+    import http.cookiejar as cookielib
+
+# 使用urllib2请求https出错，做的设置
+import ssl
+context = ssl._create_unverified_context()
 
 # 使用requests请求https出现警告，做的设置
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-
-salt_api = "https://10.20.10.24:8000/"
+salt_api = "https://10.20.1.51:8000/"
 
 
 class SaltApi:
@@ -25,15 +29,11 @@ class SaltApi:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36",
             "Content-type": "application/json"
         }
-        # self.params = {'client': 'local', 'fun': '', 'tgt': ''}
+        self.params = {'client': 'local', 'fun': '', 'tgt': ''}
         self.login_url = salt_api + "login"
         self.login_params = {'username': self.username, 'password': self.password, 'eauth': 'pam'}
-        try:
-            self.token = self.get_data(self.login_url, self.login_params)['token']
-            self.headers['X-Auth-Token'] = self.token
-        except Exception as e:
-            print("账号或者是用户名出错")
-            exit(2)
+        self.token = self.get_data(self.login_url, self.login_params).get('token')
+        self.headers['X-Auth-Token'] = self.token
 
     def get_data(self, url, params):
         send_data = json.dumps(params)
@@ -51,12 +51,16 @@ class SaltApi:
         result = self.get_data(self.url, params)
         return result
 
+
 def main():
     salt = SaltApi(salt_api)
     salt_client = '*'
     salt_test = 'test.ping'
-    result1 = salt.salt_command(salt_client, salt_test)
-    print(result1)
+    salt_method = 'grains.get'
+    salt_params = ['ip_interfaces',]
+    result2 = salt.salt_command(salt_client, salt_method, salt_params)
+    print(result2)
+
 
 if __name__ == '__main__':
     main()
