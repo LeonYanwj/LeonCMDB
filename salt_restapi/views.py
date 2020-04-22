@@ -15,7 +15,7 @@ def batch_add(request):
         if agent_form.is_valid():
             f = agent_form.cleaned_data['agentMessFile']
             f_obj = UploadFile(f)
-            f_obj.save_file()
+            f_obj.save_sql()
         return HttpResponse('Upload Success')
     else:
         agent_form = forms.FileUploadForm()
