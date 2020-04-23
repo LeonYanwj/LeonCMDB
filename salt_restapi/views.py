@@ -2,8 +2,10 @@ from django.shortcuts import render,HttpResponse
 from django.contrib.auth.models import User, Group
 from salt_restapi import forms
 from salt_restapi.core import UploadFile
+from django.contrib.auth.decorators import login_required
 
 
+@login_required
 def batch_add(request):
     """
     文件接收 view
