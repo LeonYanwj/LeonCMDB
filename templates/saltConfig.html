@@ -1,0 +1,10 @@
+{% extends 'master.html' %}
+
+{% block mytotol %} 文件上传 {% endblock %}
+
+{% block script %}
+    <form action="{% url 'salt_env' %}" method="POST" >
+    {{ form }}
+        <input type="submit" value="提交">
+    </form>
+{% endblock %}

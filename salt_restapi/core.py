@@ -82,4 +82,48 @@ class SaltCtrl(object):
             if self.response['error']:
                 return False
 
-    def get
+    def data_is_valid(self):
+        data = self.request.get('deploy_data')
+        if data:
+            try:
+                data = json.loads(data)
+                self.mandatory_check(data)   # False
+                self.clean_data = data
+                if not self.request.get('error'):
+                    return True
+            except ValueError as e:
+                self.response['status'] = 1
+                self.response['error'].append("AssetDataInvalid: %s"%str(e))
+        else:
+            self.response['error'].append("AssetDataInvalid: The reported asset data is not valid or provided")
+
+    def command_run(self):
+        """
+        1. 需要获取到主机的信息，self.clean_data
+        2. 判断主机是那种系统
+        3. 通过反射系统名称
+        :return:
+        """
+        func = getattr(self,"__deploy_%s"%self.clean_data.get('os_type'))
+        func()
+
+
+    def __deploy_LINUX(self):
+        """
+        1. paramiko执行
+        :return:
+        """
+        __host = self.clean_data['hostip']
+        __port = self.clean_data['remote_port']
+        __user = self.clean_data['remote_user']
+        __password = self.clean_data['remote_password']
+        try:
+            ssh_client = paramiko.SSHClient()
+            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            try:
+                ssh_client.connect(__host,__port,__user,__password)
+                std_in,std_out,std_err = ssh_client.exec_command("curl http://")
+            except Exception as e:
+                pass
+        except Exception as e:
+            self.response['error'].append("DeployError: %s"%str(e))

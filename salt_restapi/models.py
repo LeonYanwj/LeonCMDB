@@ -37,3 +37,9 @@ class AgentDeployHostMess(models.Model):
 
     def __str__(self):
         return "<id:%s host:%s>"%(self.id,self.hostip)
+
+class SaltConfigEnv(models.Model):
+    """salt env"""
+    webserver = models.GenericIPAddressField()
+    timeout = models.IntegerField()
+    salt_master = models.GenericIPAddressField()
