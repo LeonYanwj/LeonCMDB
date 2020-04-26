@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="shortcut icon" href="/static/img/logo.png" />
+    <link rel="shortcut icon" href="/static/img/logo.png" />
     <title>{% block mytotol %} {% endblock   %}</title>
     <!--Open Sans Font [ OPTIONAL ] -->
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet">
@@ -13,19 +13,25 @@
     <link href="/static/css/nifty.min.css" rel="stylesheet">
     <link href="/static/premium/icon-sets/icons/line-icons/premium-line-icons.min.css" rel="stylesheet">
     <link href="/static/premium/icon-sets/icons/solid-icons/premium-solid-icons.min.css" rel="stylesheet">
+    <link href="/static/demo/nifty-demo-icons.css" rel="stylesheet" >
+    <link rel="stylesheet" href="/static/demo/nifty-demo.min.css">
+    <link rel="stylesheet" href="/static/plugins/dropzone.min.css">
     <!--Font Awesome [ OPTIONAL ]-->
     <link href="/static/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     <link href="/static/css/pace.min.css" rel="stylesheet">
     <!--Magic Checkbox [ OPTIONAL ]-->
     <link href="/static/plugins/magic-check/css/magic-check.min.css" rel="stylesheet">
-    <script src="/static/js/pace.min.js"></script>
-    <script src="/static/js/jquery.min.js"></script>
-    <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/nifty.min.js"></script>
     {% block mycss %} {% endblock %}
 </head>
 <body>
     {% block script %} {% endblock %}
 </body>
      {% block myjs %} {% endblock %}
+    <script src="/static/js/pace.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/nifty.min.js"></script>
+    <script src="/static/js/nifty-demo.min.js"></script>
+    <script src="/static/js/form-file-upload.js"></script>
+    <script src="/static/plugins/dropzone.min.js"></script>
 </html>

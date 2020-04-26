@@ -3,8 +3,28 @@
 {% block mytotol %} 文件上传 {% endblock %}
 
 {% block script %}
-    <form action="{% url 'batch_add' %}" method="POST" enctype="multipart/form-data">
-    {{ form }}
-        <input type="submit" value="提交">
-    </form>
+    <div id="page-content">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <h3 class="panel-title">批量安装agent</h3>
+            </div>
+            <div class="panel-body">
+                <p class="text-main text-bold mar-no">拖放文件上传</p>
+                <br>
+                <form id="demo-dropzone" action="{% url 'batch_add' %}" class="dropzone dz-clickable">
+                    <div class="dz-default dz-message">
+                        <div class="dz-icon">
+                            <i class="demo-pli-upload-to-cloud icon-5x"></i>
+                        </div>
+                        <div>
+                            <span class="dz-text">拖动要上传的文件</span>
+                            <p class="text-sm text-muted">或单击以手动选择</p>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

@@ -14,15 +14,12 @@ def batch_add(request):
     :return:
     """
     if request.method == "POST":
-        agent_form = forms.FileUploadForm(request.POST,request.FILES)
-        if agent_form.is_valid():
-            f = agent_form.cleaned_data['agentMessFile']
-            f_obj = UploadFile(f)
-            f_obj.save_sql()
-        return HttpResponse('Upload Success')
+        f = request.FILES.get('file')
+        f_obj = UploadFile(f)
+        f_obj.save_sql()
+        return HttpResponse("Upload file sccuess")
     else:
-        agent_form = forms.FileUploadForm()
-    return render(request,'agent_upload_file.html',{'form':agent_form})
+        return render(request,'agent_upload_file.html')
 
 @login_required
 def salt_environment(request):
