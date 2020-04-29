@@ -13,7 +13,7 @@ class UploadFile(object):
         self.fileobj = fileobj
         self.mandatory_fields = ["hostip",'os_type','remote_port','remote_user','remote_password']
         self.response = {
-            "errors": [],
+            "error": [],
             "info": [],
             "warning": []
         }
@@ -27,7 +27,7 @@ class UploadFile(object):
                     destination.write(chunk)
             return agent_file_name
         else:
-            self.response['errors'].append("Only Upload xlsx File")
+            self.response['error'].append("Only Upload xlsx File")
             return False
 
     def save_sql(self):
@@ -51,7 +51,8 @@ class UploadFile(object):
                     }
                     data_list.append(data_set)
                 else:
-                    self.response['errors'].append("")
+                    # excel文件中数据存在问题
+                    self.response['error'].append("There is a problem with excel data")
                     return self.response
                 
             for sqldata in data_list:
@@ -84,7 +85,7 @@ class SaltCtrl(object):
         """合法性检查，要求客户端发过来的数据必须包括指定的字段"""
         for field in self.mandatory_fields:
             if field not in data:
-                self.response["error"].apeend( "MandatoryCheckFailed The field [%s] is mandatory and not provided in your reporting data"% field)
+                self.response["error"].append( "MandatoryCheckFailed The field [%s] is mandatory and not provided in your reporting data"% field)
 
         else:
             if self.response['error']:
