@@ -4,7 +4,8 @@ import xlrd
 import time
 import json
 import paramiko
-from salt_restapi import  models
+import os
+from salt_restapi import models
 
 class UploadFile(object):
 
@@ -33,6 +34,9 @@ class UploadFile(object):
         agent_file_name = self.__save_file(self.fileobj)
         if agent_file_name != False:
             data = xlrd.open_workbook(r"static/Deploy_agent/%s.xlsx"%agent_file_name,)
+            agent_data_file = r"static/Deploy_agent/%s.xlsx"%agent_file_name
+            if os.path.exists(agent_data_file):
+                os.remove(agent_data_file)
             table = data.sheet_by_index(0)
             rows_num = table.nrows
             data_list = []
@@ -46,6 +50,10 @@ class UploadFile(object):
                         "remote_password": table.row(r)[4].value
                     }
                     data_list.append(data_set)
+                else:
+                    self.response['errors'].append("")
+                    return self.response
+                
             for sqldata in data_list:
                 hostip = sqldata.get('hostip')
                 host_obj = models.AgentDeployHostMess.objects.filter(hostip=hostip)
