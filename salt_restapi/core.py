@@ -129,14 +129,16 @@ class SaltCtrl(object):
         __user = self.clean_data['remote_user']
         __password = self.clean_data['remote_password']
         try:
-            ssh_client = MySSHClient()
+            ssh_client = SSHClient()
             ssh_client.set_missing_host_key_policy(AutoAddPolicy())
             try:
                 ssh_client.connect(__host,__port,__user,__password,timeout=5)
-                std_in,std_out,std_err = ssh_client.run(
-                    command,
-                    print
-                )
+                stdin, stdout, stderr = ssh_client.exec_command(command, get_pty=True)
+                while True:
+                    next_line = stdout.readline().strip()
+                    print(next_line)
+                    if not next_line:
+                        break
                 ssh_client.close()
             except Exception as e:
                 pass
@@ -144,10 +146,9 @@ class SaltCtrl(object):
             self.response['error'].append("DeployError: %s"%str(e))
 
     def _deploy_LINUX(self):
-
         self.__runCode("mkdir -p /tmp/agents/")
         self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
-        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents && rpm -Uvh /tmp/agents/*.rpm --force")
+        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents && yum install /tmp/agents/*.rpm \-y")
 
 
 class MySSHClient(SSHClient):
