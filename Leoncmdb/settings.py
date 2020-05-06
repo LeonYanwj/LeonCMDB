@@ -143,3 +143,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR,'static'),
 )
 LOGIN_URL = '/login.html/'
+
+NGINX_DOWNLOAD_URL = "http://172.104.181.64/download/"

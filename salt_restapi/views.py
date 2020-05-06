@@ -3,7 +3,9 @@ from django.contrib.auth.models import User, Group
 from salt_restapi import models
 from salt_restapi import forms
 from salt_restapi.core import UploadFile
+from salt_restapi.core import SaltCtrl
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 
 @login_required
@@ -34,3 +36,12 @@ def salt_environment(request):
     else:
         obj = forms.SaltConfigEnv()
     return render(request,'saltConfig.html',{"obj":obj})
+
+
+def salt_agent_deploy(request):
+    if request.method == "POST":
+        handler = SaltCtrl(request)
+        handler.data_is_valid()
+        handler.deploy_agent()
+
+    return HttpResponse("该接口只支持POST提交")

@@ -8,4 +8,5 @@ from salt_restapi import views
 
 urlpatterns = [
     url(r'^batch_add/',views.batch_add,name="batch_add"),
+    url(r'^salt_agent_deploy/',views.salt_agent_deploy)
 ]

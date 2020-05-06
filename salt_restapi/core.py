@@ -3,9 +3,12 @@
 import xlrd
 import time
 import json
-import paramiko
 import os
 from salt_restapi import models
+from django.conf import settings
+from gevent.socket import wait_read
+from paramiko import SSHClient
+from paramiko import AutoAddPolicy
 
 class UploadFile(object):
 
@@ -54,7 +57,7 @@ class UploadFile(object):
                     # excel文件中数据存在问题
                     self.response['error'].append("There is a problem with excel data")
                     return self.response
-                
+
             for sqldata in data_list:
                 hostip = sqldata.get('hostip')
                 host_obj = models.AgentDeployHostMess.objects.filter(hostip=hostip)
@@ -92,13 +95,13 @@ class SaltCtrl(object):
                 return False
 
     def data_is_valid(self):
-        data = self.request.get('deploy_data')
+        data = self.request.POST.get('deploy_data')
         if data:
             try:
                 data = json.loads(data)
                 self.mandatory_check(data)   # False
                 self.clean_data = data
-                if not self.request.get('error'):
+                if not self.response.get('error'):
                     return True
             except ValueError as e:
                 self.response['status'] = 1
@@ -106,18 +109,17 @@ class SaltCtrl(object):
         else:
             self.response['error'].append("AssetDataInvalid: The reported asset data is not valid or provided")
 
-    def command_run(self):
+    def deploy_agent(self):
         """
         1. 需要获取到主机的信息，self.clean_data
         2. 判断主机是那种系统
         3. 通过反射系统名称
         :return:
         """
-        func = getattr(self,"__deploy_%s"%self.clean_data.get('os_type'))
+        func = getattr(self,"_deploy_%s"%self.clean_data.get('os_type'))
         func()
 
-
-    def __deploy_LINUX(self):
+    def __runCode(self,command):
         """
         1. paramiko执行
         :return:
@@ -127,12 +129,44 @@ class SaltCtrl(object):
         __user = self.clean_data['remote_user']
         __password = self.clean_data['remote_password']
         try:
-            ssh_client = paramiko.SSHClient()
-            ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh_client = MySSHClient()
+            ssh_client.set_missing_host_key_policy(AutoAddPolicy())
             try:
-                ssh_client.connect(__host,__port,__user,__password)
-                std_in,std_out,std_err = ssh_client.exec_command("curl http://")
+                ssh_client.connect(__host,__port,__user,__password,timeout=5)
+                std_in,std_out,std_err = ssh_client.run(
+                    command,
+                    print
+                )
+                ssh_client.close()
             except Exception as e:
                 pass
         except Exception as e:
             self.response['error'].append("DeployError: %s"%str(e))
+
+    def _deploy_LINUX(self):
+
+        self.__runCode("mkdir -p /tmp/agents/")
+        self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
+        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents && rpm -Uvh /tmp/agents/*.rpm --force")
+
+
+class MySSHClient(SSHClient):
+
+    def _forward_bound(self, channel, callback, *args):
+        try:
+            while True:
+                wait_read(channel.fileno())
+                data = channel.recv(1024).decode("utf-8")
+                if not len(data):
+                    return
+                callback(data,*args)
+        finally:
+            self.close()
+
+    def run(self,command,callback,*args):
+        stdin,stdout,stderr = self.exec_command(
+            command,get_pty=True
+        )
+        self._forward_bound(stdout.channel,callback,*args)
+
+        return stdin,stdout,stderr
