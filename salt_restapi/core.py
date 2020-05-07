@@ -148,8 +148,8 @@ class SaltCtrl(object):
     def _deploy_LINUX(self):
         self.__runCode("mkdir -p /tmp/agents/")
         self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
-        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents && yum install /tmp/agents/*.rpm \-y")
-
+        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents")
+        self.__runCode("yum install /tmp/agents/*.rpm -y")
 
 class MySSHClient(SSHClient):
 
