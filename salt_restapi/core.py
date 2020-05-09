@@ -151,8 +151,12 @@ class SaltCtrl(object):
         self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents")
         self.__runCode("yum install /tmp/agents/*.rpm -y")
 
-class MySSHClient(SSHClient):
+    def _deploy_WINDOWS(self):
+        pass
 
+
+class MySSHClient(SSHClient):
+    # 实现paramiko动态输出结果，因为此方法输出结果不是我想要，所以已经被弃用
     def _forward_bound(self, channel, callback, *args):
         try:
             while True:

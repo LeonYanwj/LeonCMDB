@@ -1,5 +1,22 @@
 #!/bin/bash
 
+
+
+_install_client () {
+
+    if [ "$UPGRADE" == "1" ]; then
+        log "migrate configurations to new locationo"
+        migrate_config
+        migrate_config_v1
+    fi
+
+    if [ -f plugins/bin/gsecmdline ]; then
+        ln -sf $PWD/plugins/bin/gsecmdline /usr/bin/gsecmdline
+    else
+        cp plugins/bin/gsecmdline.exe ${AGENT_SETUP_PATH%/gse*}/Windows/System32/
+    fi
+}
+
 download_pkg () {
     local pkgname="$1"
     local nginx_port=$(echo -n "$PKGS_SOURCE" | sed 's/^.*://g')
@@ -49,7 +66,6 @@ install_agent () {
 
     log "remove temperary files"
     rm -rf /tmp/gse_* /tmp/byproxy
-    addcron_for ${node_type}   || warn "add crontab task failed. you can add it manually"
 }
 
 install_direct_area () {
@@ -91,18 +107,16 @@ set_install_path () {
                 cpu_arch=x86
             fi
             INSTALL_TARGET_PATH=/etc/slat/
-            export LAN_IP=$(get_lan_ip | head -1)
         ;;
         *CYGWIN*)
             export os_type=windows
-            export LAN_IP=$(get_win_lanip | head -1)
             if uname -s | grep -q 'WOW64'; then
                 cpu_arch=x86_64
             else
                 cpu_arch=x86
             fi
 
-            INSTALL_TARGET_PATH=C:\\gse
+            INSTALL_TARGET_PATH=C:\\slat
         ;;
         *)
             fail "operating system: $(uname -o) is not supported"
