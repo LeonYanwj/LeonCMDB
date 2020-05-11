@@ -4,11 +4,13 @@ import xlrd
 import time
 import json
 import os
-from salt_restapi import models
+import threading
+from saltapi import models
 from django.conf import settings
 from gevent.socket import wait_read
 from paramiko import SSHClient
 from paramiko import AutoAddPolicy
+
 
 class UploadFile(object):
 
@@ -47,7 +49,7 @@ class UploadFile(object):
                 if len(table.row_values(r)) == len(self.mandatory_fields):
                     data_set = {
                         "hostip": table.row(r)[0].value,
-                        "os_type": table.row(r)[0].value,
+                        "os_type": table.row(r)[1].value.upper(),
                         "remote_port": table.row(r)[2].value,
                         "remote_user": table.row(r)[3].value,
                         "remote_password": table.row(r)[4].value
@@ -67,6 +69,7 @@ class UploadFile(object):
         else:
             return self.response
 
+
 class SaltCtrl(object):
 
     def __init__(self,request):
@@ -76,7 +79,7 @@ class SaltCtrl(object):
         :param request:
         """
         self.request = request
-        self.mandatory_fields = ["hostip","os_type","remote_port","remote_user","remote_password"]
+        self.mandatory_fields = ["ids"]
         self.response = {
             'status': 0,
             'error': [],
@@ -116,21 +119,28 @@ class SaltCtrl(object):
         3. 通过反射系统名称
         :return:
         """
-        func = getattr(self,"_deploy_%s"%self.clean_data.get('os_type'))
-        func()
+        if self.clean_data.get('ids'):
+            for id in self.clean_data.get('ids'):
+                models_obj = models.AgentDeployHostMess.objects.filter(id=int(id)).first()
+                os_type = models_obj.os_type
+                func = getattr(self,"_deploy_%s"%os_type)
+                func(id)
 
-    def __runCode(self,command):
+    def __runCode(self,id,command):
         """
         1. paramiko执行
         :return:
         """
-        __host = self.clean_data['hostip']
-        __port = self.clean_data['remote_port']
-        __user = self.clean_data['remote_user']
-        __password = self.clean_data['remote_password']
+        host_obj = models.AgentDeployHostMess.objects.filter(id=id).first()
+        __host = host_obj.hostip
+        __port = host_obj.remote_port
+        __user = host_obj.remote_user
+        __password = host_obj.remote_password
+        print(__host,__password,__port,__user,__password)
         try:
             ssh_client = SSHClient()
             ssh_client.set_missing_host_key_policy(AutoAddPolicy())
+            print()
             try:
                 ssh_client.connect(__host,__port,__user,__password,timeout=5)
                 stdin, stdout, stderr = ssh_client.exec_command(command, get_pty=True)
@@ -145,11 +155,11 @@ class SaltCtrl(object):
         except Exception as e:
             self.response['error'].append("DeployError: %s"%str(e))
 
-    def _deploy_LINUX(self):
-        self.__runCode("mkdir -p /tmp/agents/")
-        self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
-        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents")
-        self.__runCode("yum install /tmp/agents/*.rpm -y")
+    def _deploy_LINUX(self,id):
+        self.__runCode(id,"mkdir -p /tmp/agents/")
+        self.__runCode(id,"curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
+        self.__runCode(id,"tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents")
+        self.__runCode(id,"yum install /tmp/agents/*.rpm -y")
 
     def _deploy_WINDOWS(self):
         pass

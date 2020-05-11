@@ -21,7 +21,7 @@ from asset import urls as asset_urls
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^asset/',include(asset_urls)),
-    url(r'^salt_rest/',include('salt_restapi.urls')),
+    url(r'^salt_rest/', include('saltapi.urls')),
     url(r'^login.html/$',asset_urls.views.login),
     url(r'^logout/$',asset_urls.views.logout),
     url(r'^index.html/$',asset_urls.views.index),

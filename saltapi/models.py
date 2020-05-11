@@ -23,7 +23,7 @@ class AgentDeployHostMess(models.Model):
     """agent批量安装主机信息"""
     hostip = models.CharField("主机ip",max_length=64,blank=True)
     os_type = models.CharField("系统类型",max_length=64,blank=True)
-    remote_port = models.IntegerField("远程登录端口",max_length=64,blank=True)
+    remote_port = models.IntegerField("远程登录端口",blank=True)
     remote_user = models.CharField("远程登录用户",max_length=64,blank=True)
     remote_password = models.CharField("远程登录密码",max_length=64,blank=True)
     craete_date = models.DateTimeField(auto_now_add=True,blank=True)

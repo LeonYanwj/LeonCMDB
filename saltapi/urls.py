@@ -3,7 +3,7 @@ __author__ = 'Leonyan'
 
 
 from django.conf.urls import url,include
-from salt_restapi import views
+from saltapi import views
 
 
 urlpatterns = [

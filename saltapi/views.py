@@ -1,9 +1,9 @@
 from django.shortcuts import render,HttpResponse
 from django.contrib.auth.models import User, Group
-from salt_restapi import models
-from salt_restapi import forms
-from salt_restapi.core import UploadFile
-from salt_restapi.core import SaltCtrl
+from saltapi import models
+from saltapi import forms
+from saltapi.core import UploadFile
+from saltapi.core import SaltCtrl
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
