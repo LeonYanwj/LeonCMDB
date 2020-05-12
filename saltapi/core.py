@@ -6,6 +6,7 @@ import json
 import os
 import threading
 from saltapi import models
+from django.db.models import Q
 from django.conf import settings
 from gevent.socket import wait_read
 from paramiko import SSHClient
@@ -123,20 +124,30 @@ class SaltCtrl(object):
             for id in self.clean_data.get('ids'):
                 models_obj = models.AgentDeployHostMess.objects.filter(id=int(id)).first()
                 os_type = models_obj.os_type
-                func = getattr(self,"_deploy_%s"%os_type)
-                func(id)
+                os_data = {
+                    "os_type":os_type,
+                    "hostip":models_obj.hostip,
+                    "remote_port":models_obj.remote_port,
+                    "remote_user":models_obj.remote_user,
+                    "remote_password":models_obj.remote_password
+                }
+                func = getattr(self,"_deploy_%s"%os_type.upper())
+                func(os_data)
 
-    def __runCode(self,id,command):
+    def __runCode(self,command,*args,**kwargs):
         """
         1. paramiko执行
         :return:
         """
-        host_obj = models.AgentDeployHostMess.objects.filter(id=id).first()
-        __host = host_obj.hostip
-        __port = host_obj.remote_port
-        __user = host_obj.remote_user
-        __password = host_obj.remote_password
-        print(__host,__password,__port,__user,__password)
+        host_info = args[0][0]
+        try:
+            __host = host_info.get("hostip")
+            __port = host_info.get("remote_port")
+            __user = host_info.get("remote_user")
+            __password = host_info.get("remote_password")
+        except Exception as e:
+            self.response["error"].append( "传递的主机信息中有错误")
+            return False
         try:
             ssh_client = SSHClient()
             ssh_client.set_missing_host_key_policy(AutoAddPolicy())
@@ -155,11 +166,11 @@ class SaltCtrl(object):
         except Exception as e:
             self.response['error'].append("DeployError: %s"%str(e))
 
-    def _deploy_LINUX(self,id):
-        self.__runCode(id,"mkdir -p /tmp/agents/")
-        self.__runCode(id,"curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz")
-        self.__runCode(id,"tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents")
-        self.__runCode(id,"yum install /tmp/agents/*.rpm -y")
+    def _deploy_LINUX(self,*args,**kwargs):
+        self.__runCode("mkdir -p /tmp/agents/",args)
+        self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz",args)
+        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents",args)
+        self.__runCode("yum install /tmp/agents/*.rpm -y",args)
 
     def _deploy_WINDOWS(self):
         pass
