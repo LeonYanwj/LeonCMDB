@@ -28,6 +28,14 @@ class AgentDeployHostMess(models.Model):
     remote_password = models.CharField("远程登录密码",max_length=64,blank=True)
     craete_date = models.DateTimeField(auto_now_add=True,blank=True)
     update_date = models.DateTimeField(blank=True, auto_now=True)
+    state_choices = (
+        (0,'Active'),
+        (1,'Deploy'),
+        (2,'Disabled'),
+        (3,'Error'),
+        (4,'None'),
+    )
+    state = models.IntegerField("状态",choices=state_choices,default=4,blank=True)
     text =  models.TextField(blank=True)
 
     class Meta:
