@@ -38,6 +38,11 @@ def salt_environment(request):
     return render(request,'saltConfig.html',{"obj":obj})
 
 
+@login_required
+def node_list(request):
+    if request.method == "GET":
+        return render(request,'tables-footable.html')
+
 def salt_agent_deploy(request):
     if request.method == "POST":
         handler = SaltCtrl(request)
