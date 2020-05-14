@@ -41,7 +41,8 @@ def salt_environment(request):
 @login_required
 def node_list(request):
     if request.method == "GET":
-        return render(request,'tables-footable.html')
+        obj = models.AgentDeployHostMess.objects.all()
+        return render(request,'tables-footable.html',{"agent_host":obj})
 
 def salt_agent_deploy(request):
     if request.method == "POST":

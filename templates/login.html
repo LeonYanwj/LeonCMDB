@@ -20,6 +20,7 @@
 		                <p>使用你的用户登录</p>
 		            </div>
 		            <form action="/login.html/" method="POST">
+                        <input type="hidden" name="next" value="{{ next_url }}">
 		                <div class="form-group">
 		                    <input type="text" name='username' class="form-control" placeholder="用户名" value="{{ name }}">
 		                </div>

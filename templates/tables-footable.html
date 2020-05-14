@@ -1,10 +1,47 @@
 {% extends 'master.html' %}
+{% load node_dispaly %}
 {% block mytotol %} {% endblock %}
 {% block mycss %} {% endblock %}
 {% block script %}
-    <table class="table table-hover">
-
+    <div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>
+                <label>
+                  <input type="checkbox" value="option1">
+                </label>
+            </th>
+            <th>IP地址</th>
+            <th>节点类型</th>
+            <th>状态</th>
+            <th>更新时间</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in agent_host %}
+            <tr>
+                <td>
+                    <label>
+                      <input type="checkbox" value="option1">
+                    </label>
+                </td>
+                <td>{{ i.hostip }}</td>
+                <td>Agent</td>
+                <td>{{ i.get_state_display|agent_state|safe }}</td>
+                    <td>{{ i.update_date|date_obj }}</td>
+                <td>安装 &nbsp; 卸载</td>
+        {% endfor %}
+        </tbody>
     </table>
+    </div>
 {% endblock %}
 
-{% block myjs %} {% endblock %}
+{% block myjs %}
+    <script type="application/javascript">
+    $(document).ready(function () {
+
+    })
+    </script>
+{% endblock %}

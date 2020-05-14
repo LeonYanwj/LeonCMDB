@@ -52,8 +52,8 @@ def login(request):
             try:
                 auth.login(request, user)
                 request.session.set_expiry(60 * 30)
-                print("跳转的目的",request.GET.get('next'))
-                return HttpResponseRedirect(request.GET.get("next") if request.GET.get("next") else "/index.html/")
+                print("跳转的目的",request.POST.get('next'))
+                return HttpResponseRedirect(request.POST.get("next") if request.POST.get("next") else "/index.html/")
 
             except Exception:
                     return render(request,'login.html',{'login_err': u'CrazyEye账户还未设定,请先登录后台管理界面创建CrazyEye账户!'})
@@ -61,7 +61,8 @@ def login(request):
         else:
             return render(request,'login.html',{'name':username,'pwd':password})
     else:
-        return render(request, 'login.html')
+        next_url = request.GET.get("next")
+        return render(request, 'login.html',{"next_url":next_url})
 
 @login_required
 def root(request):
