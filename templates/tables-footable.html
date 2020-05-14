@@ -31,7 +31,10 @@
                 <td>Agent</td>
                 <td>{{ i.get_state_display|agent_state|safe }}</td>
                     <td>{{ i.update_date|date_obj }}</td>
-                <td>安装 &nbsp; 卸载</td>
+                <td>
+                    <a href="#" class="installAgent">安装</a>
+                    &nbsp; 卸载
+                </td>
         {% endfor %}
         </tbody>
     </table>
@@ -40,8 +43,10 @@
 
 {% block myjs %}
     <script type="application/javascript">
-    $(document).ready(function () {
-
+    $(document).ready(function deployAgent() {
+        $("td a.installAgent").click(function () {
+            
+        })
     })
     </script>
 {% endblock %}
