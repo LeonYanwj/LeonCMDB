@@ -22,6 +22,7 @@
         <tbody>
         {% for i in agent_host %}
             <tr>
+                <input type="text" class="hidden"  name="ids" value="{{ i.id }}" />
                 <td>
                     <label>
                       <input type="checkbox" value="option1">
@@ -33,7 +34,7 @@
                     <td>{{ i.update_date|date_obj }}</td>
                 <td>
                     <a href="#" class="installAgent">安装</a>
-                    &nbsp; 卸载
+                    <a href="#" class="uninstall">卸载</a>
                 </td>
         {% endfor %}
         </tbody>
@@ -42,10 +43,19 @@
 {% endblock %}
 
 {% block myjs %}
-    <script type="application/javascript">
-    $(document).ready(function deployAgent() {
-        $("td a.installAgent").click(function () {
-            
+    <script>
+    $(document).ready(function () {
+        $(".installAgent").click(function () {
+            var data = {};
+            $.ajax({
+                url: "{% url "salt_agent_deploy" %}",
+                type: "POST",
+                dataType: "JSON",
+                data: data,
+                success:function (data) {
+                    alert("任务下发成功")
+                }
+            })
         })
     })
     </script>

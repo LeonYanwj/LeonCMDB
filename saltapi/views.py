@@ -46,6 +46,7 @@ def node_list(request):
 
 def salt_agent_deploy(request):
     if request.method == "POST":
+        print(request.POST)
         handler = SaltCtrl(request)
         handler.data_is_valid()
         handler.deploy_agent()
