@@ -6,6 +6,7 @@ from saltapi.core import UploadFile
 from saltapi.core import SaltCtrl
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+import json
 
 
 @login_required
@@ -47,6 +48,7 @@ def node_list(request):
 def salt_agent_deploy(request):
     if request.method == "POST":
         print(request.POST)
+        data = json.loads(request.POST.get("clean_data"))
         handler = SaltCtrl(request)
         handler.data_is_valid()
         handler.deploy_agent()
