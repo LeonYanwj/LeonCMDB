@@ -22,7 +22,9 @@
         <tbody>
         {% for i in agent_host %}
             <tr>
-                <input type="text" class="hidden"  name="ids" value="{{ i.id }}" />
+                <td class="hidden">
+                    <input type="text" value="{{ i.id }}" />
+                </td>
                 <td>
                     <label>
                       <input type="checkbox" value="option1">
@@ -31,11 +33,12 @@
                 <td>{{ i.hostip }}</td>
                 <td>Agent</td>
                 <td>{{ i.get_state_display|agent_state|safe }}</td>
-                    <td>{{ i.update_date|date_obj }}</td>
+                <td>{{ i.update_date|date_obj }}</td>
                 <td>
                     <a href="#" class="installAgent">安装</a>
                     <a href="#" class="uninstall">卸载</a>
                 </td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>
@@ -46,11 +49,11 @@
     <script>
     $(document).ready(function () {
         $(".installAgent").click(function () {
-            var data_list = {"name": "ywj","pwd":"123456"};
+            var agent_id = $(this).parent('td').parent('tr').children(0).children("input").val()
             $.ajax({
                 url: "{% url "salt_agent_deploy" %}",
                 type: "POST",
-                data: {clean_data:JSON.stringify(data_list)},
+                data: {deploy_data:JSON.stringify({"ids": [agent_id]})},
                 success:function (data) {
                     alert("任务下发成功")
                 },
