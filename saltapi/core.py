@@ -133,6 +133,13 @@ class SaltCtrl(object):
                 }
                 func = getattr(self,"_deploy_%s"%os_type.upper())
                 func(os_data)
+                if not self.response.get('error'):
+                    try:
+                        models_obj.update(state=0)
+                    except Exception as e:
+                        self.response['error'].append("e")
+
+
 
     def __runCode(self,command,*args,**kwargs):
         """
