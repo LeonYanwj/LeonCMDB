@@ -55,7 +55,12 @@
                 type: "POST",
                 data: {deploy_data:JSON.stringify({"ids": [agent_id]})},
                 success:function (data) {
-                    alert("任务下发成功")
+                    if (data.get("error")){
+                        alert("agent安装失败");
+                    }else{
+                        alert("安装成功");
+                    }
+                    window.location.reload()
                 },
                 error:function (data) {
                     alert("提交失败"+JSON.stringify(data))
