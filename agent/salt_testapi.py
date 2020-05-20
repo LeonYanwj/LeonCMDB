@@ -56,9 +56,9 @@ def main():
     salt = SaltApi(salt_api)
     salt_client = '*'
     salt_test = 'test.ping'
-    salt_method = 'grains.get'
+    salt_method = 'grains.items'
     salt_params = ['ip_interfaces',]
-    result2 = salt.salt_command(salt_client, salt_method, salt_params)
+    result2 = salt.salt_command(salt_client, salt_method, )
     print(result2)
 
 

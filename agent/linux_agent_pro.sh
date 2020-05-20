@@ -96,6 +96,31 @@ install_direct_area () {
     esac
 }
 
+usage () {
+    echo "usage: ${0##*/} -m { proxy | client } OPTIONS"
+    echo ""
+    echo "OPTIONS list:"
+    echo "  -h    print this help page"
+    echo "  -r    uninstall"
+    echo "  -m    'proxy' or 'client'"
+    echo "        client: a host under the control of proxy or server"
+    echo "        proxy: manager node of seperated datacenter"
+    echo "  -b    bridge mode of client, client connected to proxy"
+    echo "  -u    upgrade agent/proxy, with configuration reserved/migrated"
+    echo "  -t    set timeout limit"
+    echo "  -e    NAT ip, usefull when agent is behined a NATed firewall"
+    echo ""
+    echo "when BRIDGE MODE enabled"
+    echo "  -i    datacenter id, valid in proxy mode. default: 2"
+    echo "  -w    ip1,ip2, multi proxy server seperated by comma"
+    echo "  -l    ip1,ip2, multi proxy server seperated by comma"
+    echo "  -o    target host ip list file. default: /tmp/hosts.config"
+    echo "        each line format like this:"
+    echo "          IP PORT USERNAME IDENTITY"
+
+    exit 0
+}
+
 set_install_path () {
     # 检查安装环境, 确定需要安装的版本.
     case $(uname -s) in

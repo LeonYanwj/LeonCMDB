@@ -50,5 +50,6 @@ def salt_agent_deploy(request):
         handler = SaltCtrl(request)
         handler.data_is_valid()
         handler.deploy_agent()
+        print(handler.response)
 
     return HttpResponse("该接口只支持POST提交")

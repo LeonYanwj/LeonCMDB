@@ -92,7 +92,7 @@ class SaltCtrl(object):
         """合法性检查，要求客户端发过来的数据必须包括指定的字段"""
         for field in self.mandatory_fields:
             if field not in data:
-                self.response["error"].append( "MandatoryCheckFailed The field [%s] is mandatory and not provided in your reporting data"% field)
+                self.response["error"].append( "Datafielderror: %s"% field)
 
         else:
             if self.response['error']:
@@ -108,10 +108,9 @@ class SaltCtrl(object):
                 if not self.response.get('error'):
                     return True
             except ValueError as e:
-                self.response['status'] = 1
                 self.response['error'].append("AssetDataInvalid: %s"%str(e))
         else:
-            self.response['error'].append("AssetDataInvalid: The reported asset data is not valid or provided")
+            self.response['error'].append("data not found: The reported asset data is not valid or provided")
 
     def deploy_agent(self):
         """
@@ -120,7 +119,7 @@ class SaltCtrl(object):
         3. 通过反射系统名称
         :return:
         """
-        if self.clean_data.get('ids'):
+        if self.clean_data.get('ids') and not self.response.get('error'):
             for id in self.clean_data.get('ids'):
                 models_obj = models.AgentDeployHostMess.objects.filter(id=int(id)).first()
                 os_type = models_obj.os_type
@@ -133,11 +132,20 @@ class SaltCtrl(object):
                 }
                 func = getattr(self,"_deploy_%s"%os_type.upper())
                 func(os_data)
+                self.response["info"].append("agent部署完毕")
                 if not self.response.get('error'):
                     try:
-                        models_obj.update(state=0)
+                        models_obj.state = 0
+                        models_obj.save()
+                        self.response["info"].append("数据库更新完毕")
                     except Exception as e:
-                        self.response['error'].append("e")
+                        self.response['warning'].append("数据库更新失败")
+                else:
+                    # 安装失败
+                    models_obj.state = 3
+                    models_obj.save()
+        else:
+            return False
 
 
 
@@ -153,12 +161,11 @@ class SaltCtrl(object):
             __user = host_info.get("remote_user")
             __password = host_info.get("remote_password")
         except Exception as e:
-            self.response["error"].append( "传递的主机信息中有错误")
+            self.response["error"].append( "KeyError:传递的主机信息中有错误")
             return False
         try:
             ssh_client = SSHClient()
             ssh_client.set_missing_host_key_policy(AutoAddPolicy())
-            print()
             try:
                 ssh_client.connect(__host,__port,__user,__password,timeout=5)
                 stdin, stdout, stderr = ssh_client.exec_command(command, get_pty=True)
@@ -169,9 +176,9 @@ class SaltCtrl(object):
                         break
                 ssh_client.close()
             except Exception as e:
-                pass
+                self.response['error'].append("DeployError: %s"%str(e))
         except Exception as e:
-            self.response['error'].append("DeployError: %s"%str(e))
+            self.response['error'].append("SshConnectError: 连接服务器失败")
 
     def _deploy_LINUX(self,*args,**kwargs):
         self.__runCode("mkdir -p /tmp/agents/",args)
