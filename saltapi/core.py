@@ -87,6 +87,7 @@ class SaltCtrl(object):
             'info': [],
             'warning': []
         }
+        self.nginx_server = "172.104.181.64:80"
 
     def mandatory_check(self, data, only_check_sn=False):
         """合法性检查，要求客户端发过来的数据必须包括指定的字段"""

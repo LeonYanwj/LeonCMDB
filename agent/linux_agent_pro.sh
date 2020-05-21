@@ -1,6 +1,28 @@
 #!/bin/bash
 
+log () {
+   # 打印消息, 并记录到日志, 日志文件由 LOG_FILE 变量定义
+   local retval=$?
+   local timestamp=$(date +%Y%m%d-%H%M%S)
+   local level=INFO
+   local logfile=${LOG_FILE:=/tmp/bkc.log}
 
+   echo "[$(blue_echo ${$MASTER_LANIP})]$timestamp $BASH_LINENO   $@"
+   echo "[$(blue_echo ${{MASTER_LANIP})]$timestamp $level|$BASH_LINENO|${func_seq} $@" >>$logfile
+   return $retval
+}
+
+red_echo ()      { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[031;1m$@\033[0m"; }
+green_echo ()    { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[032;1m$@\033[0m"; }
+yellow_echo ()   { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[033;1m$@\033[0m"; }
+blue_echo ()     { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[034;1m$@\033[0m"; }
+purple_echo ()   { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[035;1m$@\033[0m"; }
+bred_echo ()     { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[041;1m$@\033[0m"; }
+bgreen_echo ()   { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[042;1m$@\033[0m"; }
+byellow_echo ()  { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[043;1m$@\033[0m"; }
+bblue_echo ()    { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[044;1m$@\033[0m"; }
+bpurple_echo ()  { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[045;1m$@\033[0m"; }
+bgreen_echo ()   { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[042;34;1m$@\033[0m"; }
 
 _install_client () {
 
@@ -9,11 +31,32 @@ _install_client () {
         migrate_config
         migrate_config_v1
     fi
+    yum -y install /tmp/agents/*.rpm
+}
 
-    if [ -f plugins/bin/gsecmdline ]; then
-        ln -sf $PWD/plugins/bin/gsecmdline /usr/bin/gsecmdline
-    else
-        cp plugins/bin/gsecmdline.exe ${AGENT_SETUP_PATH%/gse*}/Windows/System32/
+_stop () {
+    systemctl disable salt-minion
+    systemctl stop salt-minion
+}
+
+remove () {
+
+    if [ "$UPGRADE" == "1" ]; then
+        log "backup configurations for gse plugins"
+        backup_config
+        backup_config_v1
+    fi
+
+    log "remove old gse agent"
+    _stop
+    rm -rf $INSTALL_TARGET_PATH /var/{log,run,lib}/salt
+}
+
+mkfs () {
+
+    local fsname="$1"
+    if [ ! -d "$fsname" ];then
+        mkdir $fsname
     fi
 }
 
@@ -23,22 +66,31 @@ download_pkg () {
     local nginx_ip=( $(echo -n "$PKGS_SOURCE" | sed 's/:[0-9]\+,\?/ /g') )
     local _contiue=false
 
-    cd  /tmp
-    rm -vf /tmp/$pkgname
+    cd  /tmp/
+    rm -vf /tmp/agents/$pkgname
 
     curl -o /tmp/agents/$pkg_name http://"$nginx_ip"/download/$pkg_name
-    [ -s /tmp/$pkgname ] && _contiue=true
+    [ -s /tmp/agents/$pkgname ] && _contiue=true
 
     #这里一般不会执行
     if ! $_contiue; then
         for ip in ${nginx_ip[@]} ${nginx_wanip[@]}; do
-            curl -o /tmp/agents/$pkg_name http://"$nginx_ip"/download/$pkg_name
+            curl -o /tmp/agents/$pkg_name http://"${nginx_ip}:${nginx_port}"/download/$pkg_name
             [ -s /tmp/$pkgname ] && break
         done
     fi
 
-    cd $OLDPWD
-    [ -s /tmp/$pkgname ]
+}
+
+_start () {
+    local proj=$1
+    systemctl daemon-reload
+    systemctl start salt-minion
+    if [ "$?" -eq 0 ];then
+        log "start salt-minion service success"
+    else
+        log "start salt-minion service failed"
+    fi
 }
 
 install_agent () {
@@ -49,15 +101,17 @@ install_agent () {
             log "create directory $INSTALL_TARGET_PATH/{logs,data}"
             mkdir -p $INSTALL_TARGET_PATH/{logs,data} ;;
         *)
-            log "create directory /var/{log,run,lib}/slat"
-            mkdir -p /var/{log,run,lib}/gse ;;
+            log "create directory /var/{log,run,lib}/salt"
+            # mkdir -p /var/{log,run,lib}/salt ;;
     esac
 
+    mkfs /tmp/agents || fail "craete directory failed"
     if [ -f /tmp/agents/$pkg_name ]; then
         rm -f /tmp/$pkg_name
         mv /tmp/agents/$pkg_name /tmp/
+        download_pkg $pkg_name || fail "setup failed -- get salt package(client) failed. install abort"
     else
-        download_pkg $pkg_name || fail "setup failed -- get gse package(client) failed. install abort"
+        download_pkg $pkg_name || fail "setup failed -- get salt package(client) failed. install abort"
     fi
 
     _install_${node_type}       || fail "setup failed -- install_client failed."
@@ -65,7 +119,14 @@ install_agent () {
     ok "agent(client) setup done -- install_success"
 
     log "remove temperary files"
-    rm -rf /tmp/gse_* /tmp/byproxy
+}
+
+_remove () {
+    remove || fail "remove failed -- remove old version of gse agent failed."
+    if $REMOVE; then
+        ok "remove done -- remove_success"
+        exit 0
+    fi
 }
 
 install_direct_area () {
@@ -148,65 +209,29 @@ set_install_path () {
         ;;
     esac
 
-    if ! which wget >/dev/null 2>&1; then
-        fail "setup failed -- command wget not found. abort"
+    if ! which curl >/dev/null 2>&1; then
+        fail "setup failed -- command curl not found. abort"
     fi
 }
 
-DIRECT=true
 REMOVE=false
-CLOUD_ID=2
 BIZ_ID=0
-QQ_ONLY=0
 UPGRADE=0
 
-while getopts A:D:E:C:I:je:t:uhrbm:i:w:l:o:g: arg; do
+while getopts A:I:hrm:g:t: arg; do
     case $arg in
         h) usage ;;
         m) NODE_TYPE="$OPTARG" ;;
         r) REMOVE=true; TAG_REMOVE="-r" ;;
-        b) DIRECT=false ;;
-        i) CLOUD_ID="$OPTARG" ;;
         I) BIZ_ID="$OPTARG" ;;
-        w) PROXY_WANIP=( $(echo -n "$OPTARG" | sed 's/,/ /g') ); PROXY_WANIPS_STRING="$OPTARG" ;;
-        l) PROXY_IP=( $(echo -n "$OPTARG" | sed 's/,/ /g') ); PROXY_LANIPS_STRING="$OPTARG" ;;
-        g) PKGS_SOURCE="$OPTARG"; NGINX_IP_OPT="-g $OPTARG" ;;
-        o) IPLIST_FILE=$OPTARG ;;
-        A) export GSE_WANIP=( $(echo -n "$OPTARG" | sed 's/,/ /g' ) ) ;;
-        D) export DATA_IP=$OPTARG EXTERNAL_IP=$OPTARG ;;
-        E) export CONN_IP=$OPTARG; EXTERNAL_WANIP=$OPTARG ;;
-        C) export CASCADE_IP=$OPTARG ;;
-        e) export EXTERNAL_IP=$OPTARG ;;
-        j) export QQ_ONLY=1 ;;
-        u) export UPGRADE=1; UPGRADE_OPT="-u" ;;
+        g) PKGS_SOURCE="$OPTARG" ;;
+        A) export MASTER_LANIP=( $(echo -n "$OPTARG" | sed 's/,/ /g' ) ) ;;
         t) export TIMEOUT=$OPTARG ;;
         *) usage ;;
     esac
 done
 
-set_install_path
-if $DIRECT; then
-    # agent 直连gse server, 可以直连 nginx.
-    # steps:
-    #   1. 登陆机器
-    #   2. 执行安装
-    install_direct_area $NODE_TYPE
-    rm -f /tmp/hosts_app.config /tmp/key_merged
-else
-    # 生成 cmd_file, 内容为安装 agent 要执行的命令列表
-    if [ "$NODE_TYPE" == "proxy" ]; then
-        fail "it is not permitted to install a proxy inbridge mode"
-    fi
 
-    if ! grep -qw '%HOSTS_LIST%' /tmp/hosts_app.config; then
-        generate_keyfile /tmp/key_merged /tmp/hosts_app.config
-        generate_cafile /tmp/ca_merged /tmp/hosts_app.config
-        pare /tmp/hosts_app.config $(gen_script_shell) $(gen_script_bat)
-        rm -f /tmp/hosts_app.config /tmp/key_merged /tmp/ca_merged
-    elif [ -s $IPLIST_FILE ]; then
-        pare $IPLIST_FILE $(gen_script_shell) $(gen_script_bat)
-    else
-        fail "setup failed -- not target host specified. please check."
-    fi
-    rm -f /tmp/hosts_app.config /tmp/key_merged
-fi
+set_install_path
+install_direct_area $NODE_TYPE
+rm -f /tmp/hosts_app.config /tmp/key_merged
