@@ -133,8 +133,8 @@ class SaltCtrl(object):
                 }
                 func = getattr(self,"_deploy_%s"%os_type.upper())
                 func(os_data)
-                self.response["info"].append("agent部署完毕")
                 if not self.response.get('error'):
+                    self.response["info"].append("agent部署完毕")
                     try:
                         models_obj.state = 0
                         models_obj.save()
