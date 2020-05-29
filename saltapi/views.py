@@ -46,7 +46,6 @@ def node_list(request):
         return render(request,'tables-footable.html',{"agent_host":obj})
 
 # 先注释
-@login_required
 def salt_agent_deploy(request):
     if request.method == "POST":
         handler = SaltCtrl(request)

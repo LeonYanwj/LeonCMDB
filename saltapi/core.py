@@ -173,7 +173,7 @@ class SaltCtrl(object):
                 status = stdout.channel.recv_exit_status()
                 while True:
                     next_line = stdout.readline()
-                    print(next_line)
+                    print(next_line.strip())
                     if not next_line:
                         break
                 ssh_client.close()
