@@ -169,25 +169,32 @@ class SaltCtrl(object):
             ssh_client.set_missing_host_key_policy(AutoAddPolicy())
             try:
                 ssh_client.connect(__host,__port,__user,__password,timeout=5)
-                stdin, stdout, stderr = ssh_client.exec_command(command, get_pty=True)
+                stdin, stdout, stderr = ssh_client.exec_command(command,get_pty=True)
+                status = stdout.channel.recv_exit_status()
                 while True:
-                    next_line = stdout.readline().strip()
+                    next_line = stdout.readline()
                     print(next_line)
                     if not next_line:
                         break
                 ssh_client.close()
+                if status != 0:
+                    self.response['error'].append("ExecuteError: execute shell return code is not 0")
             except Exception as e:
                 self.response['error'].append("DeployError: %s"%str(e))
         except Exception as e:
             self.response['error'].append("SshConnectError: 连接服务器失败")
 
     def _deploy_LINUX(self,*args,**kwargs):
-        self.__runCode("mkdir -p /tmp/agents/",args)
-        self.__runCode("curl -o /tmp/agents/salt-agent-linux-x86_64.tgz http://172.104.181.64/download/salt-agent-linux-x86_64.tgz",args)
-        self.__runCode("tar xf /tmp/agents/salt-agent-linux-x86_64.tgz -C /tmp/agents",args)
-        self.__runCode("yum install /tmp/agents/*.rpm -y",args)
+        '''
+        args: os_data，包含了本次需要操作的主机、用户名、密码等信息
+        '''
+        self.__runCode("curl -o /tmp/linux_agent_pro.sh http://%s/download/linux_agent_pro.sh"%self.nginx_server,args)
+        self.__runCode("dos2unix /tmp/linux_agent_pro.sh && bash /tmp/linux_agent_pro.sh -m client -g %s -A 10.20.1.51"%self.nginx_server,args)
 
     def _deploy_WINDOWS(self):
+        pass
+
+    def _deploy_AIX(self):
         pass
 
 

@@ -1,15 +1,36 @@
 #!/bin/bash
+# vim:ft=sh
 
 log () {
    # 打印消息, 并记录到日志, 日志文件由 LOG_FILE 变量定义
    local retval=$?
    local timestamp=$(date +%Y%m%d-%H%M%S)
    local level=INFO
-   local logfile=${LOG_FILE:=/tmp/bkc.log}
 
-   echo "[$(blue_echo ${$MASTER_LANIP})]$timestamp $BASH_LINENO   $@"
-   echo "[$(blue_echo ${{MASTER_LANIP})]$timestamp $level|$BASH_LINENO|${func_seq} $@" >>$logfile
+   echo "[$(blue_echo ${CONN_IP:-$LAN_IP})]$timestamp $BASH_LINENO   $@"
    return $retval
+}
+
+warn () {
+   # 打印警告消息, 并返回0
+   # 屏幕输出使用黄色字体
+   local timestamp=$(date +%Y%m%d-%H%M%S)
+   local level=WARN
+
+   echo "[$(yellow_echo ${CONN_IP:-$LAN_IP})]$timestamp $BASH_LINENO   $(yellow_echo $@)"
+   return 0
+}
+
+fail () {
+   # 打印错误消息,并以非0值退出程序
+   # 参数1: 消息内容
+   # 参数2: 可选, 返回值, 若不提供默认返回1
+   local timestamp=$(date +%Y%m%d-%H%M%S)
+   local level=FATAL
+   local retval=${2:-1}
+
+   echo "[$(red_echo ${CONN_IP:-$LAN_IP})]$timestamp $BASH_LINENO   $(red_echo $@)" >&2
+   exit $retval
 }
 
 red_echo ()      { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[031;1m$@\033[0m"; }
@@ -24,14 +45,48 @@ bblue_echo ()    { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[044;1m$@\0
 bpurple_echo ()  { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[045;1m$@\033[0m"; }
 bgreen_echo ()   { [ "$HASTTY" != "1" ] && echo "$@" || echo -e "\033[042;34;1m$@\033[0m"; }
 
-_install_client () {
 
-    if [ "$UPGRADE" == "1" ]; then
-        log "migrate configurations to new locationo"
-        migrate_config
-        migrate_config_v1
-    fi
+get_lan_ip () {
+    #
+    ip addr | \
+        awk -F'[ /]+' '/inet/{
+               split($3, N, ".")
+               if ($3 ~ /^192.168/) {
+                   print $3
+               }
+               if (($3 ~ /^172/) && (N[2] >= 16) && (N[2] <= 31)) {
+                   print $3
+               }
+               if ($3 ~ /^10\./) {
+                   print $3
+               }
+          }'
+
+   return $?
+}
+
+get_win_lanip () {
+    ipconfig | awk '/IP(v4)? /{
+               split($NF, N, ".")
+               if ($NF ~ /^192.168/) {
+                   print $NF
+               }
+               if (($NF ~ /^172/) && (N[2] >= 16) && (N[2] <= 31)) {
+                   print $NF
+               }
+               if ($NF ~ /^10\./) {
+                   print $NF
+               }
+        }'
+}
+
+migrate_config () {
+    sed -i "/#master: salt/c\master: $MASTER_LANIP$"  ${INSTALL_TARGET_PATH}minion
+}
+
+_install_client () {
     yum -y install /tmp/agents/*.rpm
+    migrate_config
 }
 
 _stop () {
@@ -74,11 +129,9 @@ download_pkg () {
 
     #这里一般不会执行
     if ! $_contiue; then
-        for ip in ${nginx_ip[@]} ${nginx_wanip[@]}; do
-            curl -o /tmp/agents/$pkg_name http://"${nginx_ip}:${nginx_port}"/download/$pkg_name
-            [ -s /tmp/$pkgname ] && break
-        done
+        curl -o /tmp/agents/$pkg_name http://"${nginx_ip}:${nginx_port}"/download/$pkg_name
     fi
+    [ -s /tmp/agents/$pkgname ]
 
 }
 
@@ -187,15 +240,18 @@ set_install_path () {
     case $(uname -s) in
         *Linux)
             export os_type=linux
+
             if [ $(getconf LONG_BIT) == 64 ]; then
                 cpu_arch=x86_64
             else
                 cpu_arch=x86
             fi
-            INSTALL_TARGET_PATH=/etc/slat/
+            INSTALL_TARGET_PATH=/etc/salt/
+            export LAN_IP=$(get_lan_ip | head -1)
         ;;
         *CYGWIN*)
             export os_type=windows
+            export LAN_IP=$(get_win_lanip | head -1)
             if uname -s | grep -q 'WOW64'; then
                 cpu_arch=x86_64
             else
