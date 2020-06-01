@@ -122,3 +122,19 @@ class System(models.Model):
 class SupportTeam(models.Model):
     """支持团队"""
     name = models.CharField("名称",max_length=200,blank=True,null=True)
+
+class NewAssetApprovalZone(models.Model):
+    """新资产待添加到主机列表中"""
+    asset_type_choices = (
+        ('server', u'服务器'),
+        ('switch', u'交换机'),
+        ('router', u'路由器'),
+        ('firewall', u'防火墙'),
+        ('storage', u'存储设备'),
+        ('NLB', u'NetScaler'),
+        ('wireless', u'无线AP'),
+        ('software', u'软件资产'),
+        ('others', u'其它类'),
+    )
+    asset_type = models.CharField(choices=asset_type_choices,max_length=64,blank=True,null=True)
+    ipaddr = models.CharField("服务器ip地址",max_length=64,blank=True,null=True)
