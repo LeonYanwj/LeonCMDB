@@ -29,7 +29,6 @@ class AppSystem(models.Model):
     def __str__(self):
         return "%s %s"%(self.name,self.state)
 
-
 class Center(models.Model):
 
     name = models.CharField('中心名称',max_length=200,null=True,blank=True)
@@ -102,16 +101,18 @@ class Cluster(models.Model):
     def __str__(self):
         return "%s--> %s"%(self.name,self.state)
 
-
-class ModelName(models.Model):
-    name = models.CharField("模块名称",max_length=50,blank=True,null=True)
-    env = models.CharField("所处环境",max_length=50,blank=True,null=True)
-
-
 class Server(models.Model):
     """x86 服务器表"""
     name = models.CharField("物理机名称",max_length=200,blank=True)
     serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
+    manageip = models.CharField("管理ip",max_length=64,blank=True,null=True)
+    type = models.CharField("类型",max_length=64,blank=True,null=True)
+    description = models.CharField("描述",max_length=248,blank=True,null=True)
+    username = models.CharField("用户名",max_length=64,blank=True,null=True)
+    zone = models.CharField("区域",max_length=64,blank=True,null=True)
+    room = models.CharField("所在机房",max_length=64,blank=True,null=True)
+    owner = models.CharField("归属方",max_length=64,blank=True,null=True)
+
 
 class System(models.Model):
     """虚拟机，真实的业务系统"""
@@ -123,8 +124,17 @@ class SupportTeam(models.Model):
     """支持团队"""
     name = models.CharField("名称",max_length=200,blank=True,null=True)
 
+class UserAdmin(models.Model):
+    user = models.OneToOneField(User)
+    name = models.CharField(max_length=32)
+    department = models.CharField(max_length=32,null=True,blank=True)
+    phone = models.IntegerField()
+
 class NewAssetApprovalZone(models.Model):
-    """新资产待添加到主机列表中"""
+    """新资产待审批区"""
+    internal_ipaddr = models.CharField("内网ip地址",max_length=64,null=True,blank=True)
+    external_ipaddr = models.CharField("外部ip地址",max_length=64,null=True,blank=True)
+    sn = models.CharField(u'资产SN号', max_length=128, unique=True)
     asset_type_choices = (
         ('server', u'服务器'),
         ('switch', u'交换机'),
@@ -136,5 +146,25 @@ class NewAssetApprovalZone(models.Model):
         ('software', u'软件资产'),
         ('others', u'其它类'),
     )
-    asset_type = models.CharField(choices=asset_type_choices,max_length=64,blank=True,null=True)
-    ipaddr = models.CharField("服务器ip地址",max_length=64,blank=True,null=True)
+    asset_type = models.CharField(choices=asset_type_choices, max_length=64,default='server',blank=True, null=True)
+    manufactory = models.CharField(max_length=64, blank=True, null=True)
+    model = models.CharField(max_length=128, blank=True, null=True)
+    ram_size = models.IntegerField(blank=True, null=True)
+    cpu_model = models.CharField(max_length=128, blank=True, null=True)
+    cpu_count = models.IntegerField(blank=True, null=True)
+    cpu_core_count = models.IntegerField(blank=True, null=True)
+    os_distribution = models.CharField(max_length=64, blank=True, null=True)
+    os_type = models.CharField(max_length=64, blank=True, null=True)
+    os_release = models.CharField(max_length=64, blank=True, null=True)
+    data = models.TextField(u'资产数据')
+    date = models.DateTimeField(u'汇报日期', auto_now_add=True)
+    approved = models.BooleanField(u'已批准', default=False)
+    approved_by = models.ForeignKey('UserAdmin', verbose_name=u'批准人', blank=True, null=True)
+    approved_date = models.DateTimeField(u'批准日期', blank=True, null=True)
+
+    def __str__(self):
+        return self.sn
+
+    class Meta:
+        verbose_name = '新上线待批准资产'
+        verbose_name_plural = "新上线待批准资产"

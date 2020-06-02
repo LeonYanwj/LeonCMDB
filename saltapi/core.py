@@ -6,6 +6,7 @@ import json
 import os
 import threading
 from saltapi import models
+from asset import models
 from django.db.models import Q
 from django.conf import settings
 from gevent.socket import wait_read
@@ -148,6 +149,12 @@ class SaltCtrl(object):
         else:
             return False
 
+    def __newAssetApprovalZoneAppend(self,hostip):
+        """
+        实现功能： 将agent安装的数据同步到cmdb中间表中
+        1. 查看资产中间表中是否有这条数据
+        """
+        models.NewAssetApprovalZone.objects.update_or_create()
 
 
     def __runCode(self,command,*args,**kwargs):
