@@ -9,7 +9,7 @@ class AppSystem(models.Model):
     fk2: 发布的流水线可能会和流水线表进行关联
     fk3: 开发团队可能会和团队表进行关联
     """
-    system = models.ForeignKey('System',verbose_name='所属系统')
+    system = models.ForeignKey('Server',verbose_name='所属系统')
     supportteam = models.ManyToManyField('SupportTeam',verbose_name="执行信息",blank=True)
     name = models.CharField(verbose_name="应用系统名称",max_length=200,blank=True,null=True)
     enName = models.CharField("英文简称",max_length=200,blank=True,null=True)
@@ -105,20 +105,88 @@ class Server(models.Model):
     """x86 服务器表"""
     name = models.CharField("物理机名称",max_length=200,blank=True)
     serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
+    serviceMac = models.CharField("服务ip Mac地址",max_length=64,blank=True,null=True)
     manageip = models.CharField("管理ip",max_length=64,blank=True,null=True)
-    type = models.CharField("类型",max_length=64,blank=True,null=True)
+    manageMac = models.CharField("管理地址Mac",max_length=64,blank=True,null=True)
+    os_type = models.CharField("操作系统类型",max_length=64,blank=True,null=True)
+    os_name = models.CharField("操作系统名称",max_length=64,blank=True,null=True)
+    os_version = models.CharField("操作系统版本",max_length=16,blank=True,null=True)
+    os_bits = models.CharField("操作系统位数",max_length=16,blank=True,null=True)
+    cpu_logic_count = models.SmallIntegerField("CPU逻辑核心数",blank=True,null=True)
     description = models.CharField("描述",max_length=248,blank=True,null=True)
-    username = models.CharField("用户名",max_length=64,blank=True,null=True)
     zone = models.CharField("区域",max_length=64,blank=True,null=True)
     room = models.CharField("所在机房",max_length=64,blank=True,null=True)
     owner = models.CharField("归属方",max_length=64,blank=True,null=True)
+    state = models.CharField("状态",max_length=16,blank=True,null=True)
 
 
-class System(models.Model):
-    """虚拟机，真实的业务系统"""
-    server = models.ForeignKey('Server',verbose_name='所属物理机',blank=True)
-    name = models.CharField("物理机名称",max_length=200,blank=True)
-    serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
+    class Meta:
+        verbose_name = "服务器"
+        verbose_name_plural = "服务器"
+
+    def __str__(self):
+        return self.name
+
+class CPU(models.Model):
+    """cpu组件"""
+    server = models.ForeignKey("Server")
+    cpu_model = models.CharField("型号",max_length=64,blank=True,null=True)
+    cpu_count = models.SmallIntegerField(u'物理CPU个数')
+    cpu_core_count = models.SmallIntegerField(u'cpu核数')
+    cpu_used = models.CharField("cpu使用率",max_length=32,blank=True,null=True)
+    cpu_frequency = models.CharField("CPU频率",max_length=64,blank=True,null=True)
+    create_date = models.DateTimeField(auto_now_add=True,blank=True)
+    update_date = models.DateTimeField(auto_now=True,blank=True)
+
+    class Meta:
+        verbose_name = 'cpu组件'
+        verbose_name_plural = 'cpu组件'
+
+    def __str__(self):
+        return self.cpu_model
+
+class Memeory(models.Model):
+    server = models.ForeignKey("Server")
+    sn = models.CharField("SN",max_length=64,blank=True,null=True)
+    mem_model = models.CharField("型号",max_length=64,blank=True,null=True)
+    mem_size = models.CharField("内存大小",max_length=64,blank=True,null=True)
+    mem_used = models.CharField("已使用内存",max_length=64,blank=True,null=True)
+    create_date = models.DateTimeField(auto_now_add=True,blank=True)
+    update_date = models.DateTimeField(auto_now=True,null=True,blank=True)
+
+    class Meta:
+        verbose_name = "内存"
+        verbose_name_plural = "内存"
+
+class Disk(models.Model):
+    """磁盘表"""
+    server = models.ForeignKey("Server")
+    name = models.CharField("名称",max_length=64,blank=True,null=True)
+    sn = models.CharField("SN号",max_length=128,blank=True,null=True)
+    disk_model = models.CharField("磁盘型号",max_length=128,blank=True,null=True)
+    disk_size = models.CharField("磁盘大小GB",max_length=64,null=True,blank=True)
+    disk_used = models.CharField("已使用大小GB",max_length=64,blank=True,null=True)
+    create_date = models.DateTimeField(blank=True,auto_now_add=True)
+    update_date = models.DateTimeField(blank=True,auto_now=True)
+
+    class Meta:
+        verbose_name = "硬盘"
+        verbose_name_plural = "硬盘"
+
+class Netcard(models.Model):
+    """网卡配置"""
+    server = models.ForeignKey("Server")
+    name = models.CharField("网卡名称",max_length=64,blank=True,null=True)
+    ipaddr = models.GenericIPAddressField("IP地址",blank=True,null=True)
+    macaddr = models.CharField("Mac地址",max_length=64,blank=True,null=True)
+    netmask = models.CharField("子网掩码",max_length=64,blank=True,null=True)
+    net_model = models.CharField("网卡类型",max_length=64,blank=True,null=True)
+
+    class Meta:
+        verbose_name = "网卡"
+        verbose_name_plural = "网卡"
+    def __str__(self):
+        return self.name
 
 class SupportTeam(models.Model):
     """支持团队"""
