@@ -82,6 +82,7 @@ get_win_lanip () {
 
 migrate_config () {
     sed -i "/#master: salt/c\master: $MASTER_LANIP$"  ${INSTALL_TARGET_PATH}minion
+    sed -i "/^#id:/c\id: $LAN_IP" ${INSTALL_TARGET_PATH}minion
 }
 
 _install_client () {
@@ -105,6 +106,7 @@ remove () {
     log "remove old gse agent"
     _stop
     rm -rf $INSTALL_TARGET_PATH /var/{log,run,lib}/salt
+    yum remove salt* zeromq  -y
 }
 
 mkfs () {

@@ -102,10 +102,10 @@ class Cluster(models.Model):
         return "%s--> %s"%(self.name,self.state)
 
 class Server(models.Model):
-    """x86 服务器表"""
+    """x86 服务器基本信息获取"""
     name = models.CharField("物理机名称",max_length=200,blank=True)
-    serviceIp = models.CharField('服务ip',max_length=64,blank=True,null=True)
-    serviceMac = models.CharField("服务ip Mac地址",max_length=64,blank=True,null=True)
+    serviceIp = models.CharField('服务ip',max_length=64,blank=True)
+    serviceMac = models.CharField("服务ip Mac地址",max_length=64,blank=True)
     manageip = models.CharField("管理ip",max_length=64,blank=True,null=True)
     manageMac = models.CharField("管理地址Mac",max_length=64,blank=True,null=True)
     os_type = models.CharField("操作系统类型",max_length=64,blank=True,null=True)
@@ -113,11 +113,16 @@ class Server(models.Model):
     os_version = models.CharField("操作系统版本",max_length=16,blank=True,null=True)
     os_bits = models.CharField("操作系统位数",max_length=16,blank=True,null=True)
     cpu_logic_count = models.SmallIntegerField("CPU逻辑核心数",blank=True,null=True)
+    cpu_model = models.CharField("cpu型号",max_length=32,blank=True,null=True)
+    cpu_frequency = models.CharField("cpu频率",max_length=16,blank=True,null=True)
+    mem_size = models.CharField("内存大小",max_length=16,blank=True,null=True)
+    disk_size = models.CharField("硬盘大小",max_length=16,blank=True,null=True)
     description = models.CharField("描述",max_length=248,blank=True,null=True)
     zone = models.CharField("区域",max_length=64,blank=True,null=True)
     room = models.CharField("所在机房",max_length=64,blank=True,null=True)
-    owner = models.CharField("归属方",max_length=64,blank=True,null=True)
+    owner = models.CharField("设备维护人",max_length=64,blank=True,null=True)
     state = models.CharField("状态",max_length=16,blank=True,null=True)
+    sn = models.CharField("设备sn",max_length=32,blank=True,null=True)
 
 
     class Meta:
