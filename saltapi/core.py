@@ -6,7 +6,7 @@ import json
 import os
 import threading
 from saltapi import models
-from asset import models
+from asset.models import NewAssetApprovalZone
 from django.db.models import Q
 from django.conf import settings
 from gevent.socket import wait_read
@@ -140,6 +140,7 @@ class SaltCtrl(object):
                         models_obj.state = 0
                         models_obj.save()
                         self.response["info"].append("数据库更新完毕")
+                        self.__newAssetApprovalZoneAppend(os_data['hostip'])
                     except Exception as e:
                         self.response['warning'].append("数据库更新失败")
                 else:
@@ -154,7 +155,8 @@ class SaltCtrl(object):
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
         """
-        models.NewAssetApprovalZone.objects.update_or_create()
+
+        NewAssetApprovalZone.objects.get_or_create(internal_ipaddr=hostip)
 
 
     def __runCode(self,command,*args,**kwargs):
@@ -177,15 +179,15 @@ class SaltCtrl(object):
             try:
                 ssh_client.connect(__host,__port,__user,__password,timeout=5)
                 stdin, stdout, stderr = ssh_client.exec_command(command,get_pty=True)
-                status = stdout.channel.recv_exit_status()
                 while True:
                     next_line = stdout.readline()
                     print(next_line.strip())
                     if not next_line:
                         break
-                ssh_client.close()
+                status = stdout.channel.recv_exit_status()
                 if status != 0:
                     self.response['error'].append("ExecuteError: execute shell return code is not 0")
+                ssh_client.close()
             except Exception as e:
                 self.response['error'].append("DeployError: %s"%str(e))
         except Exception as e:
@@ -197,6 +199,7 @@ class SaltCtrl(object):
         '''
         self.__runCode("curl -o /tmp/linux_agent_pro.sh http://%s/download/linux_agent_pro.sh"%self.nginx_server,args)
         self.__runCode("dos2unix /tmp/linux_agent_pro.sh && bash /tmp/linux_agent_pro.sh -m client -g %s -A 10.20.1.51"%self.nginx_server,args)
+        # self.__runCode("which sdfsdf",args)
 
     def _deploy_WINDOWS(self):
         pass

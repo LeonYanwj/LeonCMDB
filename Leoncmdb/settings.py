@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_crontab',
     'asset',
     'saltapi',
     'rest_framework'
@@ -145,3 +146,7 @@ STATICFILES_DIRS = (
 LOGIN_URL = '/login.html/'
 
 NGINX_DOWNLOAD_URL = "http://172.104.181.64/download/"
+
+CRONJOBS = [
+    ('*/1 * * * *', 'app名称.xxx.task')
+]
