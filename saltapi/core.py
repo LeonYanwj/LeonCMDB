@@ -4,10 +4,11 @@ import xlrd
 import time
 import json
 import os
-import threading
 from saltapi import models
+from salt import config
+from salt import wheel
+from salt import client
 from asset.models import NewAssetApprovalZone
-from django.db.models import Q
 from django.conf import settings
 from gevent.socket import wait_read
 from paramiko import SSHClient
@@ -140,7 +141,7 @@ class SaltCtrl(object):
                         models_obj.state = 0
                         models_obj.save()
                         self.response["info"].append("数据库更新完毕")
-                        self.__newAssetApprovalZoneAppend(os_data['hostip'])
+                        # self.__newAssetApprovalZoneAppend(os_data['hostip'])
                     except Exception as e:
                         self.response['warning'].append("数据库更新失败")
                 else:
@@ -155,7 +156,16 @@ class SaltCtrl(object):
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
         """
-
+        opts = config.master_config("/etc/salt/master")
+        salt_wheel = wheel.WheelClient(opts)
+        minion_dict = salt_wheel.cmd('key.accept',[hostip])
+        if minion_dict:
+            # 返回结果又数据，代表安装成功
+            local = client.LocalClient()
+            local.cmd(hostip,'gran')
+            self.response['info'].append("%s salt public key authenticate success"%hostip)
+        else:
+            self.response['error'].append("%s salt public key authenticate faild"%hostip)
         NewAssetApprovalZone.objects.get_or_create(internal_ipaddr=hostip)
 
 
