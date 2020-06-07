@@ -160,10 +160,24 @@ class SaltCtrl(object):
         salt_wheel = wheel.WheelClient(opts)
         minion_dict = salt_wheel.cmd('key.accept',[hostip])
         if minion_dict:
-            # 返回结果又数据，代表安装成功
+            # 返回结果又数据，代表安装成功,此段代码使用python2方式编写
+            """
+            1. 需要服务端进行认证
+            2. 需要进行信息采集工作
+            """
             local = client.LocalClient()
-            local.cmd(hostip,'gran')
+            host_mess = local.cmd(hostip,"grains.items").get(hostip)
+            host_name = host_mess.get('fqdn')
+            os_type = host_mess.get('kernel')
+            os_name = host_mess.get('osfullname')
+            os_version = host_mess.get("osrelease")
+            os_bits = host_mess.get("osarch")
+            num_cpus = host_mess.get("num_cpus")
+            cpu_model = host_mess.get("num_cpus")
+            mem_total = host_mess.get("mem_total")
+
             self.response['info'].append("%s salt public key authenticate success"%hostip)
+
         else:
             self.response['error'].append("%s salt public key authenticate faild"%hostip)
         NewAssetApprovalZone.objects.get_or_create(internal_ipaddr=hostip)
