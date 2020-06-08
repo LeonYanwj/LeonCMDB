@@ -167,20 +167,39 @@ class SaltCtrl(object):
             """
             local = client.LocalClient()
             host_mess = local.cmd(hostip,"grains.items").get(hostip)
-            host_name = host_mess.get('fqdn')
-            os_type = host_mess.get('kernel')
-            os_name = host_mess.get('osfullname')
-            os_version = host_mess.get("osrelease")
-            os_bits = host_mess.get("osarch")
-            num_cpus = host_mess.get("num_cpus")
-            cpu_model = host_mess.get("num_cpus")
-            mem_total = host_mess.get("mem_total")
-
+            sn = host_mess.get("serialnumber")
+            data = {
+                "name": host_mess.get('fqdn'),
+                "os_type": host_mess.get('kernel'),
+                "os_name": host_mess.get("osfullname"),
+                "os_version": host_mess.get("osrelease"),
+                "os_bits": host_mess.get("osarch"),
+                "cpu_logic_count": host_mess.get("num_cpus"),
+                "cpu_model": host_mess.get("num_cpus"),
+                "mem_size": host_mess.get("mem_total"),
+            }
+            disks = host_mess.get("disks")
+            disk_total = 0
+            for v in disks:
+                disk_info = local.cmd(hostip,'disk.dump',['/dev/%s'%v])
+                disk_size = int(disk_info[hostip].get("getsize64"))
+                disk_size_GB = disk_size / (1024*1024*1024)
+                disk_total += disk_size_GB
+            interface = host_mess["hwaddr_interfaces"].get("ip4_interfaces")
+            interface_list = [k for k,v in interface.items() if hostip in v]
+            interface_name = interface_list[0]
+            serviceMac = host_mess.get(interface_name)
+            data["disk_size"] = disk_total
+            data["serviceMac"] = serviceMac
+            new_asset = {
+                "internal_ipaddr": hostip,
+                "sn": sn,
+                "data": json.dumps(data)
+            }
+            NewAssetApprovalZone.objects.update_or_create(**new_asset)
             self.response['info'].append("%s salt public key authenticate success"%hostip)
-
         else:
             self.response['error'].append("%s salt public key authenticate faild"%hostip)
-        NewAssetApprovalZone.objects.get_or_create(internal_ipaddr=hostip)
 
 
     def __runCode(self,command,*args,**kwargs):
