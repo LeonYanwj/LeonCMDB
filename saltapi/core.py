@@ -141,7 +141,7 @@ class SaltCtrl(object):
                         models_obj.state = 0
                         models_obj.save()
                         self.response["info"].append("数据库更新完毕")
-                        # self.__newAssetApprovalZoneAppend(os_data['hostip'])
+                        self.__newAssetApprovalZoneAppend(os_data['hostip'])
                     except Exception as e:
                         self.response['warning'].append("数据库更新失败")
                 else:
@@ -185,10 +185,10 @@ class SaltCtrl(object):
                 disk_size = int(disk_info[hostip].get("getsize64"))
                 disk_size_GB = disk_size / (1024*1024*1024)
                 disk_total += disk_size_GB
-            interface = host_mess["hwaddr_interfaces"].get("ip4_interfaces")
+            interface = host_mess.get("ip4_interfaces")
             interface_list = [k for k,v in interface.items() if hostip in v]
             interface_name = interface_list[0]
-            serviceMac = host_mess.get(interface_name)
+            serviceMac = host_mess["hwaddr_interfaces"].get(interface_name)
             data["disk_size"] = disk_total
             data["serviceMac"] = serviceMac
             new_asset = {
@@ -196,11 +196,14 @@ class SaltCtrl(object):
                 "sn": sn,
                 "data": json.dumps(data)
             }
-            NewAssetApprovalZone.objects.update_or_create(**new_asset)
-            self.response['info'].append("%s salt public key authenticate success"%hostip)
+            asset_obj = NewAssetApprovalZone.objects.filter(internal_ipaddr=hostip)
+            if not asset_obj:
+                NewAssetApprovalZone.objects.get_or_create(**new_asset)
+                self.response['info'].append("主机添加成功")
+            else:
+                self.response['warning'].append("主机已存在")
         else:
             self.response['error'].append("%s salt public key authenticate faild"%hostip)
-
 
     def __runCode(self,command,*args,**kwargs):
         """
