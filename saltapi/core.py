@@ -170,6 +170,7 @@ class SaltCtrl(object):
             sn = host_mess.get("serialnumber")
             data = {
                 "name": host_mess.get('fqdn'),
+                "service_ip": hostip,
                 "os_type": host_mess.get('kernel'),
                 "os_name": host_mess.get("osfullname"),
                 "os_version": host_mess.get("osrelease"),
@@ -196,12 +197,13 @@ class SaltCtrl(object):
                 "sn": sn,
                 "data": json.dumps(data)
             }
-            asset_obj = NewAssetApprovalZone.objects.filter(internal_ipaddr=hostip)
+            asset_obj = NewAssetApprovalZone.objects.filter(internal_ipaddr=hostip,sn=sn)
             if not asset_obj:
                 NewAssetApprovalZone.objects.get_or_create(**new_asset)
                 self.response['info'].append("主机添加成功")
             else:
-                self.response['warning'].append("主机已存在")
+                asset_obj.update(data=json.dumps(data))
+                self.response['info'].append("host message update")
         else:
             self.response['error'].append("%s salt public key authenticate faild"%hostip)
 
