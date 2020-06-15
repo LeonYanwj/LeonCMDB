@@ -1,0 +1,81 @@
+{% extends 'master.html' %}
+{% block mytotol %} {% endblock %}
+{% block mycss %} {% endblock %}
+{% block script %}
+<div class="panel">
+    <div class="panel-heading">
+        <h3 class="panel-title">Filtering</h3>
+    </div>
+
+    <!-- Foo Table - Filtering -->
+    <!--===================================================-->
+    <div class="panel-body">
+        <div class="pad-btm form-inline">
+            <div class="row">
+                <div class="col-sm-6 text-xs-center">
+                    <div class="form-group">
+                        <label class="control-label">Status</label>
+                        <select id="demo-foo-filter-status" class="form-control">
+                            <option value="">Show all</option>
+                            <option value="active">Active</option>
+                            <option value="disabled">Disabled</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 text-xs-center text-right">
+                    <div class="form-group">
+                        <input id="demo-foo-search" type="text" placeholder="Search" class="form-control"
+                               autocomplete="off">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table id="demo-foo-filtering"
+               class="table table-bordered table-hover toggle-circle tablet breakpoint footable-loaded footable"
+               data-page-size="7">
+            <thead>
+            <tr>
+                <th data-toggle="true" class="footable-visible footable-first-column footable-sortable footable-sorted">
+                    主机名称<span class="footable-sort-indicator"></span></th>
+                <th data-toggle="true" class="footable-visible footable-first-column footable-sortable footable-sorted">
+                    IP地址<span class="footable-sort-indicator"></span></th>
+                <th data-toggle="true" class="footable-visible footable-first-column footable-sortable footable-sorted">
+                    IP地址<span class="footable-sort-indicator"></span></th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr class="footable-even" style="">
+                <td class="footable-visible footable-first-column"><span class="footable-toggle"></span>Easer</td>
+                <td class="footable-visible footable-last-column">Dragoo</td>
+                <td class="footable-visible footable-last-column">Dragoo</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="5" class="footable-visible">
+                    <div class="text-right">
+                        <ul class="pagination">
+                            <li class="footable-page-arrow disabled"><a data-page="first" href="#first">«</a></li>
+                            <li class="footable-page-arrow disabled"><a data-page="prev" href="#prev">‹</a></li>
+                            <li class="footable-page active"><a data-page="0" href="#">1</a></li>
+                            <li class="footable-page"><a data-page="1" href="#">2</a></li>
+                            <li class="footable-page"><a data-page="2" href="#">3</a></li>
+                            <li class="footable-page"><a data-page="3" href="#">4</a></li>
+                            <li class="footable-page"><a data-page="4" href="#">5</a></li>
+                            <li class="footable-page-arrow"><a data-page="next" href="#next">›</a></li>
+                            <li class="footable-page-arrow"><a data-page="last" href="#last">»</a></li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+    <!--===================================================-->
+    <!-- End Foo Table - Filtering -->
+
+</div>
+
+{% endblock %}

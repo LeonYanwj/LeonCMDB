@@ -70,6 +70,4 @@ def root(request):
 
 @login_required
 def test(request):
-    res = request.POST.get('hostname')
-    obj = models.Asset.objects.get(name=res)
-    return HttpResponse(obj.manufactory.manufactory)
+    return render(request,'serverlist.html')

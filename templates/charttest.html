@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+     <script src="/static/js/echarts.min.js"></script>
+</head>
+<body>
+    <div id="main" style="width: 600px;height:400px;"></div>
+    <script>
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            series: [
+                {
+                    name: '业务指标',
+                    type: 'gauge',
+                    detail: {formatter: '12%'},
+                    data: [{value: 12, name: '使用率'}]
+                }
+            ]
+        };
+
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

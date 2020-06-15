@@ -3,28 +3,25 @@
 
 import json
 from asset import models
+from corefunc.assetCheck import AssetCheck
 
-class Asset(object):
+class Asset(AssetCheck):
 
     def __init__(self,request):
-        self.request = request
-        self.response = {
-            'error': [],
-            'info': [],
-            'warning': []
-        }
+        AssetCheck.__init__(self,request)
+        self.mandatory_fields = ["service_ip"]
 
-    def mandatory_check(self,data):
-        pass
-
-
-    def data_is_valid_without_id(self,db_obj=None):
+    def data_is_valid(self,db_obj=None):
         if db_obj:
             data = db_obj.data
             if data:
                 try:
                     data = json.loads(data)
-
+                    asset_obj = models.Server.objects.filter(serviceIp=data.get("service_ip"))
+                    if not asset_obj:
+                        pass
+                    if not self.response['error']:
+                        return True
                 except Exception as e:
                     self.response['error'].append(e)
             else:
