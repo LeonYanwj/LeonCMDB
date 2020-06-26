@@ -101,7 +101,7 @@ class Cluster(models.Model):
     def __str__(self):
         return "%s--> %s"%(self.name,self.state)
 
-class Server(models.Model):
+class HostBaiscInformation(models.Model):
     """x86 服务器基本信息获取"""
     name = models.CharField("物理机名称",max_length=200,blank=True)
     serviceIp = models.CharField('服务ip',max_length=64,blank=True)
