@@ -25,12 +25,13 @@ class AssetApprovalAdmin(admin.ModelAdmin):
         1. 检查字段是否完整
         2. 判断审批数据是否已经存在数据库中
         3. 审批成功后删除待审批区数据
+        4. obj是待审批资产信息
         '''
         print("--------asset approval.....",self,request,querysets)
         for obj in querysets:
             asset_handler = core.Asset(request)
             if asset_handler.data_is_valid(obj):
-                # obj.approved = True
+                obj.approved = True
                 obj.save()
                 print(asset_handler.response)
 
@@ -39,5 +40,5 @@ class AssetApprovalAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.NewAssetApprovalZone,AssetApprovalAdmin)
-admin.site.register(models.Server)
+admin.site.register(models.HostBasicInformation)
 admin.site.register(models.UserAdmin)

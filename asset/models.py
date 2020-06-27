@@ -9,7 +9,7 @@ class AppSystem(models.Model):
     fk2: 发布的流水线可能会和流水线表进行关联
     fk3: 开发团队可能会和团队表进行关联
     """
-    system = models.ForeignKey('HostBaiscInformation',verbose_name='所属系统')
+    system = models.ForeignKey('HostBasicInformation',verbose_name='所属系统')
     supportteam = models.ManyToManyField('SupportTeam',verbose_name="执行信息",blank=True)
     name = models.CharField(verbose_name="应用系统名称",max_length=200,blank=True,null=True)
     enName = models.CharField("英文简称",max_length=200,blank=True,null=True)
@@ -101,7 +101,7 @@ class Cluster(models.Model):
     def __str__(self):
         return "%s--> %s"%(self.name,self.state)
 
-class HostBaiscInformation(models.Model):
+class HostBasicInformation(models.Model):
     """x86 服务器基本信息获取"""
     name = models.CharField("物理机名称",max_length=200,blank=True)
     serviceIp = models.CharField('服务ip',max_length=64,blank=True)
@@ -116,6 +116,7 @@ class HostBaiscInformation(models.Model):
     cpu_model = models.CharField("cpu型号",max_length=32,blank=True,null=True)
     cpu_frequency = models.CharField("cpu频率",max_length=16,blank=True,null=True)
     mem_size = models.CharField("内存大小",max_length=16,blank=True,null=True)
+    mem_frequency = models.CharField("内存频率",max_length=16,blank=True,null=True)
     disk_size = models.CharField("硬盘大小",max_length=16,blank=True,null=True)
     description = models.CharField("描述",max_length=248,blank=True,null=True)
     zone = models.CharField("区域",max_length=64,blank=True,null=True)
