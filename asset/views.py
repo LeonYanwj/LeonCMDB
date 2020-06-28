@@ -31,7 +31,7 @@ def asset_report(requests):
 
 @login_required
 def index(requests):
-    hosts_obj = models.Asset.objects.all()
+    hosts_obj = models.HostBasicInformation.objects.all()
     return render(requests,'index.html',locals())
 
 @login_required

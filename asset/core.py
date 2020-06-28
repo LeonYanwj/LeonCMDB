@@ -58,8 +58,6 @@ class Asset(AssetCheck):
             return False
 
     def save_new_asset(self,sn):
-        print(123456)
-
         try:
             models.HostBasicInformation.objects.create(
                 name=self.clean_data.get("name"),

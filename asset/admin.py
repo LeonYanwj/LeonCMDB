@@ -31,8 +31,8 @@ class AssetApprovalAdmin(admin.ModelAdmin):
         for obj in querysets:
             asset_handler = core.Asset(request)
             if asset_handler.data_is_valid(obj):
-                # obj.approved = True
-                # obj.save()
+                obj.approved = True
+                obj.save()
                 print(asset_handler.response)
 
     asset_approval.short_description = "新资产审批"

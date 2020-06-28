@@ -9,7 +9,7 @@
         <tr>
             <th>
                 <label>
-                  <input type="checkbox" value="option1">
+                  <input class="checkAll" type="checkbox" value="option1">
                 </label>
             </th>
             <th>IP地址</th>
@@ -66,6 +66,13 @@
                     alert("提交失败"+JSON.stringify(data))
                 }
             });
+        });
+
+        $(".checkAll").click(function () {
+            $('input[type="checkbox"]').each(function () {
+                var v = $(this).prop('checked');
+                v ? $(this).prop('checked',false):$(this).prop('checked',true);
+            })
         })
     })
     </script>

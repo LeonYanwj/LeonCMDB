@@ -124,7 +124,8 @@ class HostBasicInformation(models.Model):
     owner = models.CharField("设备维护人",max_length=64,blank=True,null=True)
     state = models.CharField("状态",max_length=16,blank=True,null=True)
     sn = models.CharField("设备sn",max_length=32,blank=True,null=True)
-
+    create_date = models.DateTimeField(auto_now_add=True,blank=True)
+    update_date = models.DateTimeField(blank=True,auto_now=True)
 
     class Meta:
         verbose_name = "服务器"
