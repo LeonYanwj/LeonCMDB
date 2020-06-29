@@ -156,6 +156,7 @@ class SaltCtrl(object):
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
         """
+        time.sleep(1)  # 需要等待一秒钟salt-minion才能启动
         opts = config.master_config("/etc/salt/master")
         salt_wheel = wheel.WheelClient(opts)
         minion_dict = salt_wheel.cmd('key.accept',[hostip])

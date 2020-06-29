@@ -179,10 +179,10 @@
                                 <tbody>
                                 {% for host in hosts_obj %}
                                     <tr>
-                                        <td data-target="#demo-lg-modal" data-toggle="modal">
+                                        <td data-target="#demo-lg-modal{{ host.id }}" data-toggle="modal" >
                                             <a href="#">{{ host.serviceIp }}</a>
                                         </td>
-                                        <div id="demo-lg-modal" class="modal fade" tabindex="-1">
+                                        <div id="demo-lg-modal{{ host.id }}" class="modal fade" tabindex="-1">
                                             <div class="modal-dialog modal-lg">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
@@ -246,8 +246,14 @@
                                                                 <div id="demo-lft-tab-2" class="tab-pane fade">
                                                                     <p class="text-main text-semibold">Second Tab
                                                                         Content</p>
-                                                                    <p>Lorem ipsum dolor sit amet, consectetuer
-                                                                        adipiscing elit.</p>
+                                                                    <dev class="row">
+                                                                        <dev class="col-lg-push-4">
+                                                                            <p id="main" style="width: 350px;height:300px;"></p>
+                                                                        </dev>
+                                                                        <dev>
+                                                                            <span id="main1" style="width: 350px;height:300px;"></span>
+                                                                        </dev>
+                                                                    </dev>
                                                                 </div>
                                                                 <div id="demo-lft-tab-3" class="tab-pane fade">
                                                                     <p class="text-main text-semibold">Third Tab
@@ -265,7 +271,7 @@
                                         <td>{{ host.os_version }}</td>
                                         <td>{{ host.serviceIp }}</td>
                                         <td>{{ host.create_date.astimezone }}</td>
-                                        {% if host.status == 0 %}
+                                        {% if host.state == "0" %}
                                             <td><span class="label label-table label-success">Active</span></td>
                                         {% else %}
                                             <td><span class="label label-table label-danger">Down</span></td>
@@ -333,8 +339,32 @@
 {% endblock %}
 
 {% block myjs %}
+    <script src="/static/js/echarts.min.js"></script>
     <script>
-        (document).ready(function () {
-        })
+        var myChart = echarts.init(document.getElementById('main'));
+        var option = {
+            series: [
+                {
+                    name: '业务指标',
+                    type: 'gauge',
+                    detail: {formatter: '12%'},
+                    data: [{value: 12, name: '使用率'}]
+                }
+            ]
+        };
+        myChart.setOption(option);
+
+        var myChart1 = echarts.init(document.getElementById('main1'));
+        var option1 = {
+            series: [
+                {
+                    name: '业务指标',
+                    type: 'gauge',
+                    detail: {formatter: '12%'},
+                    data: [{value: 12, name: '使用率'}]
+                }
+            ]
+        };
+        myChart1.setOption(option1);
     </script>
 {% endblock %}

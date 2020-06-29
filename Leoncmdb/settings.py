@@ -148,5 +148,5 @@ LOGIN_URL = '/login.html/'
 NGINX_DOWNLOAD_URL = "http://172.104.181.64/download/"
 
 CRONJOBS = [
-    ('*/1 * * * *', 'app名称.xxx.task')
+    ('*/1 * * * *', 'saltapi.realtimeinformation')
 ]
