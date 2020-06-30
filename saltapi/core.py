@@ -9,7 +9,7 @@ from salt import config
 from salt import wheel
 from salt import client
 from asset.models import NewAssetApprovalZone
-from django.conf import settings
+from concurrent.futures import ThreadPoolExecutor,as_completed
 from gevent.socket import wait_read
 from paramiko import SSHClient
 from paramiko import AutoAddPolicy
@@ -89,6 +89,8 @@ class SaltCtrl(object):
             'info': [],
             'warning': []
         }
+        self.accept_host = []
+        self.SshConnectErrorHost = []
         self.nginx_server = "39.97.104.43:80"
 
     def mandatory_check(self, data, only_check_sn=False):
@@ -115,98 +117,122 @@ class SaltCtrl(object):
         else:
             self.response['error'].append("data not found: The reported asset data is not valid or provided")
 
-    def deploy_agent(self):
+    def thread_pool(self,thread_num=5):
+        deploy_pool = ThreadPoolExecutor(thread_num)
+        if self.clean_data.get("ids") and not self.response.get("error"):
+            runtime_list = []
+            for id in self.clean_data.get("ids"):
+                runtime = deploy_pool.submit(self.__deploy_agent,id)
+                runtime_list.append(runtime)
+            for future in as_completed(runtime_list):
+                future.result()
+        else:
+            self.response['error'].append("check_error: mandatory_check fields error")
+
+    def __deploy_agent(self,id):
         """
         1. 需要获取到主机的信息，self.clean_data
         2. 判断主机是那种系统
         3. 通过反射系统名称
         :return:
         """
-        if self.clean_data.get('ids') and not self.response.get('error'):
-            for id in self.clean_data.get('ids'):
-                models_obj = models.AgentDeployHostMess.objects.filter(id=int(id)).first()
-                os_type = models_obj.os_type
-                os_data = {
-                    "os_type":os_type,
-                    "hostip":models_obj.hostip,
-                    "remote_port":models_obj.remote_port,
-                    "remote_user":models_obj.remote_user,
-                    "remote_password":models_obj.remote_password
-                }
-                func = getattr(self,"_deploy_%s"%os_type.upper())
-                func(os_data)
-                if not self.response.get('error'):
-                    self.response["info"].append("agent部署完毕")
-                    try:
-                        models_obj.state = 0
-                        models_obj.save()
-                        self.response["info"].append("数据库更新完毕")
-                        self.__newAssetApprovalZoneAppend(os_data['hostip'])
-                    except Exception as e:
-                        self.response['warning'].append("数据库更新失败")
-                else:
-                    # 安装失败
-                    models_obj.state = 3
-                    models_obj.save()
+        models_obj = models.AgentDeployHostMess.objects.filter(id=int(id)).first()
+        os_type = models_obj.os_type
+        os_data = {
+            "os_type":os_type,
+            "hostip":models_obj.hostip,
+            "remote_port":models_obj.remote_port,
+            "remote_user":models_obj.remote_user,
+            "remote_password":models_obj.remote_password
+        }
+        func = getattr(self,"_deploy_%s"%os_type.upper())
+        func(os_data)
+        if not self.response.get('error') and os_data['hostip'] not in self.SshConnectErrorHost:
+            self.response["info"].append("agent部署完毕")
+            try:
+                models_obj.state = 0
+                models_obj.save()
+                self.response["info"].append("数据库更新完毕")
+                self.accept_host.append(os_data['hostip'])
+                # self.__newAssetApprovalZoneAppend(os_data['hostip'])
+            except Exception as e:
+                self.response['warning'].append("数据库更新失败")
         else:
-            return False
+            # 安装失败
+            models_obj.state = 3
+            models_obj.save()
 
-    def __newAssetApprovalZoneAppend(self,hostip):
+    def publicKeyAccept(self):
         """
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
         """
-        time.sleep(1)  # 需要等待一秒钟salt-minion才能启动
+        time.sleep(2)  # 需要等待一秒钟salt-minion才能启动
         opts = config.master_config("/etc/salt/master")
         salt_wheel = wheel.WheelClient(opts)
-        minion_dict = salt_wheel.cmd('key.accept',[hostip])
-        if minion_dict:
-            # 返回结果又数据，代表安装成功,此段代码使用python2方式编写
-            """
-            1. 需要服务端进行认证
-            2. 需要进行信息采集工作
-            """
-            local = client.LocalClient()
-            host_mess = local.cmd(hostip,"grains.items").get(hostip)
-            sn = host_mess.get("serialnumber")
-            data = {
-                "name": host_mess.get('fqdn'),
-                "service_ip": hostip,
-                "os_type": host_mess.get('kernel'),
-                "os_name": host_mess.get("osfullname"),
-                "os_version": host_mess.get("osrelease"),
-                "os_bits": host_mess.get("osarch"),
-                "cpu_logic_count": host_mess.get("num_cpus"),
-                "cpu_model": host_mess.get("num_cpus"),
-                "mem_size": host_mess.get("mem_total"),
-            }
-            disks = host_mess.get("disks")
-            disk_total = 0
-            for v in disks:
-                disk_info = local.cmd(hostip,'disk.dump',['/dev/%s'%v])
-                disk_size = int(disk_info[hostip].get("getsize64"))
-                disk_size_GB = disk_size / (1024*1024*1024)
-                disk_total += disk_size_GB
-            interface = host_mess.get("ip4_interfaces")
-            interface_list = [k for k,v in interface.items() if hostip in v]
-            interface_name = interface_list[0]
-            serviceMac = host_mess["hwaddr_interfaces"].get(interface_name)
-            data["disk_size"] = disk_total
-            data["serviceMac"] = serviceMac
-            new_asset = {
-                "internal_ipaddr": hostip,
-                "sn": sn,
-                "data": json.dumps(data)
-            }
-            asset_obj = NewAssetApprovalZone.objects.filter(internal_ipaddr=hostip,sn=sn)
-            if not asset_obj:
-                NewAssetApprovalZone.objects.get_or_create(**new_asset)
-                self.response['info'].append("主机添加成功")
-            else:
-                asset_obj.update(data=json.dumps(data))
-                self.response['info'].append("host message update")
+        accept_host_str = ",".join(self.accept_host)
+        minion_dict = salt_wheel.cmd('key.accept',[accept_host_str])
+        if len(minion_dict.get("minions")) == len(self.accept_host):
+            # 通过公钥认证的服务器数量和选择的主机一致
+            self.__newAssetApprovalZoneAppend()
         else:
-            self.response['error'].append("%s salt public key authenticate faild"%hostip)
+            accept_host_list = accept_host_str.split(",")
+            self.__newAssetApprovalZoneAppend(accept_host_list)
+        return self.response
+
+    def __newAssetApprovalZoneAppend(self,host_list=None):
+        """
+        1. host_list为主机列表['10.20.10.11','10.20.110.11']
+        2. host_list如何为None的时候默认按照self.host_appect中的主机安装，这个代表是所有主机检测公钥成功了
+        """
+        time.sleep(10)
+        local = client.LocalClient()
+        if host_list == None:
+            host_Allmess = local.cmd(self.accept_host,"grains.items",tgt_type='list')
+        else:
+            host_Allmess = local.cmd(host_list,"grains.items",tgt_type='list')
+        for ipaddr in self.accept_host:
+            host_mess = host_Allmess.get(ipaddr)
+            if host_mess:
+                sn = host_mess.get('uuid')
+                data = {
+                    "name": host_mess.get('fqdn'),
+                    "service_ip": ipaddr,
+                    "os_type": host_mess.get('kernel'),
+                    "os_name": host_mess.get("osfullname"),
+                    "os_version": host_mess.get("osrelease"),
+                    "os_bits": host_mess.get("osarch"),
+                    "cpu_logic_count": host_mess.get("num_cpus"),
+                    "cpu_model": host_mess.get("cpu_model"),
+                    "mem_size": host_mess.get("mem_total"),
+                }
+                disks = host_mess.get("disks")
+                disk_total = 0
+                for v in disks:
+                    disk_info = local.cmd(ipaddr, 'disk.dump', ['/dev/%s' % v])
+                    disk_size = int(disk_info[ipaddr].get("getsize64"))
+                    disk_size_GB = disk_size / (1024 * 1024 * 1024)
+                    disk_total += disk_size_GB
+                interface = host_mess.get("ip4_interfaces")
+                interface_list = [k for k, v in interface.items() if ipaddr in v]
+                interface_name = interface_list[0]
+                serviceMac = host_mess["hwaddr_interfaces"].get(interface_name)
+                data["disk_size"] = disk_total
+                data["serviceMac"] = serviceMac
+                new_asset = {
+                    "internal_ipaddr": ipaddr,
+                    "sn": sn,
+                    "data": json.dumps(data)
+                }
+                asset_obj = NewAssetApprovalZone.objects.filter(internal_ipaddr=ipaddr,sn=sn)
+                if not asset_obj:
+                    NewAssetApprovalZone.objects.get_or_create(**new_asset)
+                    self.response['info'].append("%s Has been added to NewAssetApprovalZone"%ipaddr)
+                else:
+                    asset_obj.update(data=json.dumps(data))
+                    self.response['info'].append("%s Has been update"%ipaddr)
+            else:
+                self.response['error'].append("%s unknown mistake" % ipaddr)
 
     def __runCode(self,command,*args,**kwargs):
         """
@@ -238,7 +264,8 @@ class SaltCtrl(object):
                     self.response['error'].append("ExecuteError: execute shell return code is not 0")
                 ssh_client.close()
             except Exception as e:
-                self.response['error'].append("DeployError: %s"%str(e))
+                self.SshConnectErrorHost.append(__host)
+                self.response['warning'].append("DeployError: %s"%str(e))
         except Exception as e:
             self.response['error'].append("SshConnectError: 连接服务器失败")
 
