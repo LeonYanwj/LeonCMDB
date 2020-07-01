@@ -200,5 +200,4 @@ class NewAssetApprovalZone(models.Model):
 
 class EventLog(models.Model):
     """事件表"""
-    name = models.CharField("记录名称",max_length=32,blank=True,null=True)
-    text = models.TextField("记录",blank=True)
+    text = models.TextField(verbose_name="记录",null=True,blank=True)
