@@ -4,6 +4,7 @@ import xlrd
 import time
 import json
 import os
+import winrm
 from saltapi import models
 from salt import config
 from salt import wheel
@@ -269,6 +270,24 @@ class SaltCtrl(object):
         except Exception as e:
             self.response['error'].append("SshConnectError: 连接服务器失败")
 
+    def __runWindowsCode(self,command,*args):
+        host_info = args[0][0]
+        try:
+            __host = host_info.get("hostip")
+            __port = host_info.get("remote_port")
+            __user = host_info.get("remote_user")
+            __password = host_info.get("remote_password")
+        except Exception as e:
+            self.response["error"].append( "KeyError:传递的主机信息中有错误")
+        if not self.response['error']:
+            '''主机登录信息未能获取到'''
+            try:
+                winHost = winrm.Session("http://%s:5985/wsman"%__host,(__user,__password))
+                print(command)
+                execute_command = winHost.run_cmd(command)
+            except Exception as e:
+                self.response['error'].append("ConnectHostError: can not connect windows host")
+
     def _deploy_LINUX(self,*args,**kwargs):
         '''
         args: os_data，包含了本次需要操作的主机、用户名、密码等信息
@@ -277,8 +296,16 @@ class SaltCtrl(object):
         self.__runCode("dos2unix /tmp/linux_agent_pro.sh && bash /tmp/linux_agent_pro.sh -m client -g %s -A 10.20.1.51"%self.nginx_server,args)
         # self.__runCode("which sdfsdf",args)
 
-    def _deploy_WINDOWS(self):
-        pass
+    def _deploy_WINDOWS(self,*args):
+        '''
+        1. 需要安装pywinrm
+        2. windows机器上需要开启winrm的一些配置
+        '''
+        self.__runWindowsCode(r"rd C:\tmpsalt",args)
+        self.__runWindowsCode(r"md C:\tmpsalt",args)
+        self.__runWindowsCode(r"certutil -urlcache -split -f http://%s/download/windows_agent.bat C:\tmpsalt\windows_agent.bat"%self.nginx_server,args)
+        # self.__runWindowsCode(r"certutil -urlcache -split -f http://%s/download/Salt-Minion-3000.2-Py2-AMD64-Setup.exe C:\tmpsalt\Salt-Minion-3000.2-Py2-AMD64-Setup.exe"%self.nginx_server,args)
+        self.__runWindowsCode(r"C:\tmpsalt\windows_agent.bat %s"%("10.20.1.27"),args)
 
     def _deploy_AIX(self):
         pass

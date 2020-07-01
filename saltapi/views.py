@@ -52,7 +52,7 @@ def salt_agent_deploy(request):
         handler.data_is_valid()
         # handler.deploy_agent()
         handler.thread_pool()
-        handler.publicKeyAccept()
+        # handler.publicKeyAccept()
         print(handler.response)
 
     return HttpResponse(handler.response)

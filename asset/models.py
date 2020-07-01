@@ -197,3 +197,8 @@ class NewAssetApprovalZone(models.Model):
     class Meta:
         verbose_name = '新上线待批准资产'
         verbose_name_plural = "新上线待批准资产"
+
+class EventLog(models.Model):
+    """事件表"""
+    name = models.CharField("记录名称",max_length=32,blank=True,null=True)
+    text = models.TextField("记录",blank=True)
