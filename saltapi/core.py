@@ -163,7 +163,7 @@ class SaltCtrl(object):
             models_obj.state = 3
             models_obj.save()
 
-    def publicKeyAccept(self):
+    def publicKeyAccept(self,count=0,timeout=2):
         """
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
@@ -173,6 +173,13 @@ class SaltCtrl(object):
         salt_wheel = wheel.WheelClient(opts)
         accept_host_str = ",".join(self.accept_host)
         minion_dict = salt_wheel.cmd('key.accept',[accept_host_str])
+        while count <= 10:
+            if not minion_dict.get("minions"):
+                minion_dict = salt_wheel.cmd('key.accept', [accept_host_str])
+                count += 1
+                time.sleep(timeout)
+            else:
+                break
         if len(minion_dict.get("minions")) == len(self.accept_host):
             # 通过公钥认证的服务器数量和选择的主机一致
             self.__newAssetApprovalZoneAppend()
@@ -195,7 +202,22 @@ class SaltCtrl(object):
         for ipaddr in self.accept_host:
             host_mess = host_Allmess.get(ipaddr)
             if host_mess:
-                sn = host_mess.get('uuid')
+                if host_mess.get("kernel").lower() == "windows":
+                    sn = host_mess.get("serialnumber")
+                    disk_info = local.cmd(ipaddr, "disk.usage")
+                    disk_total = 0
+                    for disk in disk_info.get(ipaddr):
+                        disk_total += int(disk_info[ipaddr][disk]["1K-blocks"] / 1024 / 1024)
+                else:
+                    # 这里Linux不适用serialnumber的原因是在测试环境中所有虚拟机的sn一致，导致只能使用uuid
+                    disks = host_mess.get("disks")
+                    disk_total = 0
+                    for v in disks:
+                        disk_info = local.cmd(ipaddr, 'disk.dump', ['/dev/%s' % v])
+                        disk_size = int(disk_info[ipaddr].get("getsize64"))
+                        disk_size_GB = disk_size / (1024 * 1024 * 1024)
+                        disk_total += disk_size_GB
+                    sn = host_mess.get('uuid')
                 data = {
                     "name": host_mess.get('fqdn'),
                     "service_ip": ipaddr,
@@ -207,13 +229,6 @@ class SaltCtrl(object):
                     "cpu_model": host_mess.get("cpu_model"),
                     "mem_size": host_mess.get("mem_total"),
                 }
-                disks = host_mess.get("disks")
-                disk_total = 0
-                for v in disks:
-                    disk_info = local.cmd(ipaddr, 'disk.dump', ['/dev/%s' % v])
-                    disk_size = int(disk_info[ipaddr].get("getsize64"))
-                    disk_size_GB = disk_size / (1024 * 1024 * 1024)
-                    disk_total += disk_size_GB
                 interface = host_mess.get("ip4_interfaces")
                 interface_list = [k for k, v in interface.items() if ipaddr in v]
                 interface_name = interface_list[0]
