@@ -163,7 +163,7 @@ class SaltCtrl(object):
             models_obj.state = 3
             models_obj.save()
 
-    def publicKeyAccept(self):
+    def publicKeyAccept(self,count=0,timeout=2):
         """
         实现功能： 将agent安装的数据同步到cmdb中间表中
         1. 查看资产中间表中是否有这条数据
@@ -173,6 +173,13 @@ class SaltCtrl(object):
         salt_wheel = wheel.WheelClient(opts)
         accept_host_str = ",".join(self.accept_host)
         minion_dict = salt_wheel.cmd('key.accept',[accept_host_str])
+        while count <= 10:
+            if not minion_dict.get("minions"):
+                minion_dict = salt_wheel.cmd('key.accept', [accept_host_str])
+                count += 1
+                time.sleep(timeout)
+            else:
+                break
         if len(minion_dict.get("minions")) == len(self.accept_host):
             # 通过公钥认证的服务器数量和选择的主机一致
             self.__newAssetApprovalZoneAppend()
@@ -195,7 +202,22 @@ class SaltCtrl(object):
         for ipaddr in self.accept_host:
             host_mess = host_Allmess.get(ipaddr)
             if host_mess:
-                sn = host_mess.get('uuid')
+                if host_mess.get("kernel").lower() == "windows":
+                    sn = host_mess.get("serialnumber")
+                    disk_info = local.cmd(ipaddr, "disk.usage")
+                    disk_total = 0
+                    for disk in disk_info.get(ipaddr):
+                        disk_total += int(disk_info[ipaddr][disk]["1K-blocks"] / 1024 / 1024)
+                else:
+                    # 这里Linux不适用serialnumber的原因是在测试环境中所有虚拟机的sn一致，导致只能使用uuid
+                    disks = host_mess.get("disks")
+                    disk_total = 0
+                    for v in disks:
+                        disk_info = local.cmd(ipaddr, 'disk.dump', ['/dev/%s' % v])
+                        disk_size = int(disk_info[ipaddr].get("getsize64"))
+                        disk_size_GB = disk_size / (1024 * 1024 * 1024)
+                        disk_total += disk_size_GB
+                    sn = host_mess.get('uuid')
                 data = {
                     "name": host_mess.get('fqdn'),
                     "service_ip": ipaddr,
@@ -207,13 +229,6 @@ class SaltCtrl(object):
                     "cpu_model": host_mess.get("cpu_model"),
                     "mem_size": host_mess.get("mem_total"),
                 }
-                disks = host_mess.get("disks")
-                disk_total = 0
-                for v in disks:
-                    disk_info = local.cmd(ipaddr, 'disk.dump', ['/dev/%s' % v])
-                    disk_size = int(disk_info[ipaddr].get("getsize64"))
-                    disk_size_GB = disk_size / (1024 * 1024 * 1024)
-                    disk_total += disk_size_GB
                 interface = host_mess.get("ip4_interfaces")
                 interface_list = [k for k, v in interface.items() if ipaddr in v]
                 interface_name = interface_list[0]
@@ -235,77 +250,73 @@ class SaltCtrl(object):
             else:
                 self.response['error'].append("%s unknown mistake" % ipaddr)
 
-    def __runCode(self,command,*args,**kwargs):
-        """
-        1. paramiko执行
-        :return:
-        """
-        host_info = args[0][0]
+    def executor(self,command,os_data,powershell=False):
         try:
-            __host = host_info.get("hostip")
-            __port = host_info.get("remote_port")
-            __user = host_info.get("remote_user")
-            __password = host_info.get("remote_password")
+            __host = os_data.get("hostip")
+            __port = os_data.get("remote_port")
+            __user = os_data.get("remote_user")
+            __password = os_data.get("remote_password")
+            __os_type = os_data.get("os_type")
         except Exception as e:
-            self.response["error"].append( "KeyError:传递的主机信息中有错误")
+            self.response['error'].append("KeyError: Unable to get the specified data")
             return False
-        try:
-            ssh_client = SSHClient()
-            ssh_client.set_missing_host_key_policy(AutoAddPolicy())
+        if __os_type.lower() == "linux":
             try:
-                ssh_client.connect(__host,__port,__user,__password,timeout=5)
-                stdin, stdout, stderr = ssh_client.exec_command(command,get_pty=True)
-                while True:
-                    next_line = stdout.readline()
-                    print(next_line.strip())
-                    if not next_line:
-                        break
-                status = stdout.channel.recv_exit_status()
-                if status != 0:
-                    self.response['error'].append("ExecuteError: execute shell return code is not 0")
-                ssh_client.close()
+                ssh_client = SSHClient()
+                ssh_client.set_missing_host_key_policy(AutoAddPolicy())
+                try:
+                    ssh_client.connect(__host, __port, __user, __password, timeout=5)
+                    stdin, stdout, stderr = ssh_client.exec_command(command, get_pty=True)
+                    while True:
+                        next_line = stdout.readline()
+                        print(next_line.strip())
+                        if not next_line:
+                            break
+                    status = stdout.channel.recv_exit_status()
+                    if status != 0:
+                        self.response['error'].append("ExecuteError: execute shell return code is not 0")
+                    ssh_client.close()
+                except Exception as e:
+                    self.SshConnectErrorHost.append(__host)
+                    self.response['warning'].append("DeployError: %s" % str(e))
             except Exception as e:
-                self.SshConnectErrorHost.append(__host)
-                self.response['warning'].append("DeployError: %s"%str(e))
-        except Exception as e:
-            self.response['error'].append("SshConnectError: 连接服务器失败")
-
-    def __runWindowsCode(self,command,*args):
-        host_info = args[0][0]
-        try:
-            __host = host_info.get("hostip")
-            __port = host_info.get("remote_port")
-            __user = host_info.get("remote_user")
-            __password = host_info.get("remote_password")
-        except Exception as e:
-            self.response["error"].append( "KeyError:传递的主机信息中有错误")
-        if not self.response['error']:
-            '''主机登录信息未能获取到'''
+                self.response['error'].append("SshConnectError: 连接服务器失败")
+        elif __os_type.lower() == "windows":
             try:
                 winHost = winrm.Session("http://%s:5985/wsman"%__host,(__user,__password))
-                print(command)
-                execute_command = winHost.run_cmd(command)
+                if powershell == True:
+                    execute_command = winHost.run_ps(command)
+                else:
+                    execute_command = winHost.run_cmd(command)
             except Exception as e:
                 self.response['error'].append("ConnectHostError: can not connect windows host")
+        elif __os_type.lower() == "aix":
+            pass
+        else:
+            self.response['warning'].append("SystemError: %s Does not support current system type installation agent"%__os_type)
 
-    def _deploy_LINUX(self,*args,**kwargs):
+    def _deploy_LINUX(self,os_data):
         '''
         args: os_data，包含了本次需要操作的主机、用户名、密码等信息
         '''
-        self.__runCode("curl -o /tmp/linux_agent_pro.sh http://%s/download/linux_agent_pro.sh"%self.nginx_server,args)
-        self.__runCode("dos2unix /tmp/linux_agent_pro.sh && bash /tmp/linux_agent_pro.sh -m client -g %s -A 10.20.1.51"%self.nginx_server,args)
+        self.executor("curl -o /tmp/linux_agent_pro.sh http://%s/download/linux_agent_pro.sh"%self.nginx_server,os_data)
+        self.executor("dos2unix /tmp/linux_agent_pro.sh && bash /tmp/linux_agent_pro.sh -m client -g %s -A 10.20.1.51"%self.nginx_server,os_data)
         # self.__runCode("which sdfsdf",args)
 
-    def _deploy_WINDOWS(self,*args):
+    def _deploy_WINDOWS(self,os_data):
         '''
         1. 需要安装pywinrm
         2. windows机器上需要开启winrm的一些配置
         '''
-        self.__runWindowsCode(r"rd C:\tmpsalt",args)
-        self.__runWindowsCode(r"md C:\tmpsalt",args)
-        self.__runWindowsCode(r"certutil -urlcache -split -f http://%s/download/windows_agent.bat C:\tmpsalt\windows_agent.bat"%self.nginx_server,args)
-        # self.__runWindowsCode(r"certutil -urlcache -split -f http://%s/download/Salt-Minion-3000.2-Py2-AMD64-Setup.exe C:\tmpsalt\Salt-Minion-3000.2-Py2-AMD64-Setup.exe"%self.nginx_server,args)
-        self.__runWindowsCode(r"C:\tmpsalt\windows_agent.bat %s"%("10.20.1.27"),args)
+        self.executor(r"rd C:\tmpsalt",os_data)
+        self.executor(r"md C:\tmpsalt",os_data)
+        self.executor(r"(New-Object System.Net.WebClient).DownloadFile('http://%s/download/windows_agent.bat','C:\tmpsalt\windows_agent.bat')"%self.nginx_server,os_data,powershell=True)
+        self.executor(
+            r"(New-Object System.Net.WebClient).DownloadFile('http://%s/download/Salt-Minion-3000.2-Py2-AMD64-Setup.exe','C:\tmpsalt\Salt-Minion-3000.2-Py2-AMD64-Setup.exe')"%self.nginx_server,
+            os_data,
+            powershell=True
+        )
+        self.executor(r"C:\tmpsalt\windows_agent.bat %s"%("10.20.1.27"),os_data)
 
     def _deploy_AIX(self):
         pass
