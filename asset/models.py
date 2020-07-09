@@ -147,7 +147,7 @@ class RealTimeInformation(models.Model):
         verbose_name_plural = "服务器实时信息收集"
 
     def __str__(self):
-        return self.hostbasicinformation
+        return "%s:(%s--%s)"%(self.hostbasicinformation.name,self.cpu_usage,self.create_data)
 
 class SupportTeam(models.Model):
     """支持团队"""

@@ -270,7 +270,7 @@
                                         <td>{{ host.os_type }}</td>
                                         <td>{{ host.os_version }}</td>
                                         <td>{{ host.serviceIp }}</td>
-                                        <td>{{ host.create_date.astimezone }}</td>
+                                        <td>{{ host.create_date|date:'Y-m-d H:i:s'}}</td>
                                         {% if host.state == "0" %}
                                             <td><span class="label label-table label-success">Active</span></td>
                                         {% else %}
@@ -347,8 +347,8 @@
                 {
                     name: '业务指标',
                     type: 'gauge',
-                    detail: {formatter: '12%'},
-                    data: [{value: 12, name: '使用率'}]
+                    detail: {formatter: '{{ hosts_obj.0.realtimeinformation_set.last.cpu_usage }}%'},
+                    data: [{value: {{ hosts_obj.0.realtimeinformation_set.last.cpu_usage }}, name: '处理器使用率'}]
                 }
             ]
         };
@@ -360,8 +360,8 @@
                 {
                     name: '业务指标',
                     type: 'gauge',
-                    detail: {formatter: '12%'},
-                    data: [{value: 12, name: '使用率'}]
+                    detail: {formatter: '{{ hosts_obj.0.realtimeinformation_set.last.mem_usage }}%'},
+                    data: [{value: {{ hosts_obj.0.realtimeinformation_set.last.mem_usage }}, name: '内存使用率'}]
                 }
             ]
         };
