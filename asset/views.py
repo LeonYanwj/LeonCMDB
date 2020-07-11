@@ -19,7 +19,6 @@ def asset_with_no_asset_id(request):
 
         return HttpResponse(json.dumps(res))
 
-
 @csrf_exempt
 def asset_report(requests):
     if requests.method == "POST":
@@ -32,7 +31,9 @@ def asset_report(requests):
 @login_required
 def index(requests):
     hosts_obj = models.HostBasicInformation.objects.all()
-    return render(requests,'index.html',locals())
+    last_res = models.RealTimeInformation.objects.filter(hostbasicinformation_id=3).last()
+    print(last_res)
+    return render(requests,'index.html', {"hosts_obj": hosts_obj})
 
 @login_required
 def logout(request):
@@ -70,4 +71,5 @@ def root(request):
 
 @login_required
 def test(request):
+    print(models.RealTimeInformation.objects.filter(hostbasicinformation_id=2).last())
     return render(request,'serverlist.html')

@@ -137,9 +137,9 @@ class HostBasicInformation(models.Model):
 class RealTimeInformation(models.Model):
     """服务器实时信息收集"""
     hostbasicinformation = models.ForeignKey("HostBasicInformation")
-    cpu_usage = models.CharField("处理器使用率",max_length=32,blank=True)
-    mem_usage = models.CharField("内存使用率",max_length=32,blank=True)
-    disk_usage = models.CharField("硬盘使用率",max_length=32,blank=True)
+    cpu_usage = models.FloatField("处理器使用率",max_length=32,blank=True)
+    mem_usage = models.FloatField("内存使用率",max_length=32,blank=True)
+    disk_usage = models.FloatField("硬盘使用率",max_length=32,blank=True)
     create_data = models.DateTimeField(auto_now=True,blank=True)
 
     class Meta:
@@ -147,7 +147,7 @@ class RealTimeInformation(models.Model):
         verbose_name_plural = "服务器实时信息收集"
 
     def __str__(self):
-        return self.hostbasicinformation
+        return "%s:(%s--%s)"%(self.hostbasicinformation.name,self.cpu_usage,self.create_data)
 
 class SupportTeam(models.Model):
     """支持团队"""
