@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^batch_add/',views.batch_add,name="batch_add"),
     url(r'^salt_agent_deploy/',views.salt_agent_deploy,name="salt_agent_deploy"),
     url(r'^node_list.html$',views.node_list),
+    url(r'^client_api.html$',views.client_api),
 ]
