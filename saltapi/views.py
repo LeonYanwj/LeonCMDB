@@ -50,8 +50,15 @@ def salt_agent_deploy(request):
     if request.method == "POST":
         handler = SaltCtrl(request)
         handler.data_is_valid()
-        handler.thread_pool()
+        # handler.thread_pool()
         handler.publicKeyAccept()
         print(handler.response)
 
     return HttpResponse(handler.response)
+
+def client_api(request):
+    if request.method == "GET":
+        print(request.GET)
+    else:
+        print(request.POST)
+    return HttpResponse(json.dumps("ok"))

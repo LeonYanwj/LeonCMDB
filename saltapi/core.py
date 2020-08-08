@@ -5,6 +5,7 @@ import time
 import json
 import os
 import winrm
+import threading
 from saltapi import models
 from salt import config
 from salt import wheel
@@ -111,6 +112,10 @@ class SaltCtrl(object):
                 data = json.loads(data)
                 self.mandatory_check(data)   # False
                 self.clean_data = data
+                t = threading.Thread(target=self.thread_pool,args=(5,))
+                t.start()
+                print(self.clean_data.get("ids"))
+                models.AgentDeployHostMess.objects.filter(id__in=self.clean_data.get("ids")).update(state=1)
                 if not self.response.get('error'):
                     return True
             except ValueError as e:
