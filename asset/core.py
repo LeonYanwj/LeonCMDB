@@ -58,6 +58,7 @@ class Asset(AssetCheck):
             return False
 
     def save_new_asset(self,sn):
+        print(self.clean_data.get("cpu_model"))
         try:
             models.HostBasicInformation.objects.create(
                 name=self.clean_data.get("name"),

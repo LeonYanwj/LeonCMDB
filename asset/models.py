@@ -113,7 +113,7 @@ class HostBasicInformation(models.Model):
     os_version = models.CharField("操作系统版本",max_length=16,blank=True,null=True)
     os_bits = models.CharField("操作系统位数",max_length=16,blank=True,null=True)
     cpu_logic_count = models.SmallIntegerField("CPU逻辑核心数",blank=True,null=True)
-    cpu_model = models.CharField("cpu型号",max_length=32,blank=True,null=True)
+    cpu_model = models.CharField("cpu型号",max_length=64,blank=True,null=True)
     cpu_frequency = models.CharField("cpu频率",max_length=16,blank=True,null=True)
     mem_size = models.CharField("内存大小",max_length=16,blank=True,null=True)
     mem_frequency = models.CharField("内存频率",max_length=16,blank=True,null=True)
@@ -123,7 +123,7 @@ class HostBasicInformation(models.Model):
     room = models.CharField("所在机房",max_length=64,blank=True,null=True)
     owner = models.CharField("设备维护人",max_length=64,blank=True,null=True)
     state = models.CharField("状态",max_length=16,blank=True,null=True)
-    sn = models.CharField("设备sn",max_length=32,blank=True,null=True)
+    sn = models.CharField("设备sn",max_length=64,blank=True,null=True)
     create_date = models.DateTimeField(auto_now_add=True,blank=True)
     update_date = models.DateTimeField(blank=True,auto_now=True)
 
