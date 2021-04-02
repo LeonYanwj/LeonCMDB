@@ -40,6 +40,6 @@ class AssetApprovalAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.NewAssetApprovalZone,AssetApprovalAdmin)
-admin.site.register(models.HostBasicInformation)
-admin.site.register(models.RealTimeInformation)
+admin.site.register(models.ServerInformation)
+admin.site.register(models.Servermonitor)
 admin.site.register(models.UserAdmin)

@@ -3,7 +3,7 @@
 
 import json
 from asset import models
-from corefunc.assetCheck import AssetCheck
+from common.assetCheck import AssetCheck
 
 class Asset(AssetCheck):
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from common.models import UUIDTools
 
 # Create your models here.
 
@@ -9,16 +10,15 @@ class AppSystem(models.Model):
     fk2: 发布的流水线可能会和流水线表进行关联
     fk3: 开发团队可能会和团队表进行关联
     """
-    system = models.ForeignKey('HostBasicInformation',verbose_name='所属系统')
-    supportteam = models.ManyToManyField('SupportTeam',verbose_name="执行信息",blank=True)
-    name = models.CharField(verbose_name="应用系统名称",max_length=200,blank=True,null=True)
-    enName = models.CharField("英文简称",max_length=200,blank=True,null=True)
-    description = models.CharField("描述",max_length=200,blank=True,null=True)
-    state = models.CharField('状态',max_length=50,null=True,blank=True)
-    department = models.CharField('组织部门',max_length=50,null=True,blank=True)
-    secuityLev = models.IntegerField('等保等级',null=True,blank=True)
-    businessTy = models.CharField('业务类型',max_length=50,null=True,blank=True)
-    releasePipeline = models.CharField('发布流水线',max_length=50,null=True,blank=True)
+    id = models.CharField(max_length=32, primary_key=True, default=UUIDTools.uuid1_hex, editable=False, db_column='id')
+    supportteam = models.ManyToManyField('SupportTeam',verbose_name="维护团队",blank=True,db_column='support_team')
+    name = models.CharField(verbose_name="应用系统名称",max_length=200,blank=True,null=True,db_column='name')
+    enName = models.CharField("英文简称",max_length=200,blank=True,null=True,db_column='en_name')
+    description = models.CharField("描述",max_length=200,blank=True,null=True,db_column='description')
+    state = models.CharField('状态',max_length=50,null=True,blank=True,db_column='state')
+    department = models.CharField('组织部门',max_length=50,null=True,blank=True,db_column='department')
+    businessTy = models.CharField('业务类型',max_length=50,null=True,blank=True,db_column='business_type')
+    releasePipeline = models.CharField('发布流水线',max_length=50,null=True,blank=True,db_column='release_pipeline')
     updateDate = models.DateTimeField(auto_now=True,blank=True)
     createDate = models.DateTimeField(auto_now_add=True,blank=True)
 
@@ -36,6 +36,7 @@ class Center(models.Model):
     description = models.CharField('描述',max_length=200,null=True,blank=True)
 
     class Meta():
+        db_table = "center"
         verbose_name = "中心"
         verbose_name_plural = "中心"
 
@@ -49,6 +50,7 @@ class Environment(models.Model):
     description = models.CharField('描述',max_length=200,null=True,blank=True)
 
     class Meta():
+        db_table = "environment"
         verbose_name = "环境"
         verbose_name_plural = "环境"
 
@@ -76,6 +78,7 @@ class ChildSystem(models.Model):
     updateDate = models.DateTimeField('修改时间',auto_now=True)
 
     class Meta():
+        db_table = 'child_System'
         verbose_name = '子系统'
         verbose_name_plural = '子系统'
 
@@ -95,66 +98,68 @@ class Cluster(models.Model):
     )
     state = models.CharField("状态",max_length=50,choices=state_choices,blank=True,default=0)
     class Meta():
+        db_table = 'cluster'
         verbose_name = "集群信息"
         verbose_name_plural = "集群信息"
 
     def __str__(self):
         return "%s--> %s"%(self.name,self.state)
 
-class HostBasicInformation(models.Model):
+class ServerInformation(models.Model):
     """x86 服务器基本信息获取"""
-    name = models.CharField("物理机名称",max_length=200,blank=True)
-    serviceIp = models.CharField('服务ip',max_length=64,blank=True)
-    serviceMac = models.CharField("服务ip Mac地址",max_length=64,blank=True)
-    manageip = models.CharField("管理ip",max_length=64,blank=True,null=True)
-    manageMac = models.CharField("管理地址Mac",max_length=64,blank=True,null=True)
-    os_type = models.CharField("操作系统类型",max_length=64,blank=True,null=True)
-    os_name = models.CharField("操作系统名称",max_length=64,blank=True,null=True)
-    os_version = models.CharField("操作系统版本",max_length=16,blank=True,null=True)
-    os_bits = models.CharField("操作系统位数",max_length=16,blank=True,null=True)
-    cpu_logic_count = models.SmallIntegerField("CPU逻辑核心数",blank=True,null=True)
-    cpu_model = models.CharField("cpu型号",max_length=64,blank=True,null=True)
-    cpu_frequency = models.CharField("cpu频率",max_length=16,blank=True,null=True)
-    mem_size = models.CharField("内存大小",max_length=16,blank=True,null=True)
-    mem_frequency = models.CharField("内存频率",max_length=16,blank=True,null=True)
-    disk_size = models.CharField("硬盘大小",max_length=16,blank=True,null=True)
-    description = models.CharField("描述",max_length=248,blank=True,null=True)
-    zone = models.CharField("区域",max_length=64,blank=True,null=True)
-    room = models.CharField("所在机房",max_length=64,blank=True,null=True)
-    owner = models.CharField("设备维护人",max_length=64,blank=True,null=True)
-    state = models.CharField("状态",max_length=16,blank=True,null=True)
-    sn = models.CharField("设备sn",max_length=64,blank=True,null=True)
+    id = models.CharField(primary_key=True,max_length=32,default=UUIDTools.uuid1_hex, editable=False, db_column='id')
+    systemId = models.CharField(max_length=32,blank=True,null=True,verbose_name='所属应用系统',db_column='system_id')
+    name = models.CharField("物理机名称",max_length=200,blank=True,db_column='name')
+    serviceIp = models.CharField('服务ip',max_length=64,blank=True,db_column='service_ip')
+    serviceMac = models.CharField("服务ip Mac地址",max_length=64,blank=True,db_column='service_mac')
+    manageip = models.CharField("管理ip",max_length=64,blank=True,null=True,db_column='manage_ip')
+    manageMac = models.CharField("管理地址Mac",max_length=64,blank=True,null=True,db_column='manage_mac')
+    os_type = models.CharField("操作系统类型",max_length=64,blank=True,null=True,db_column='os_type')
+    os_name = models.CharField("操作系统名称",max_length=64,blank=True,null=True,db_column='os_name')
+    os_version = models.CharField("操作系统版本",max_length=16,blank=True,null=True,db_column='os_version')
+    os_bits = models.CharField("操作系统位数",max_length=16,blank=True,null=True,db_column='os_bits')
+    cpu_logic_count = models.SmallIntegerField("CPU逻辑核心数",blank=True,null=True,db_column='cpu_logic_count')
+    cpu_model = models.CharField("cpu型号",max_length=64,blank=True,null=True,db_column='cpu_model')
+    cpu_frequency = models.CharField("cpu频率",max_length=16,blank=True,null=True,db_column='cpu_frequency')
+    mem_size = models.CharField("内存大小",max_length=16,blank=True,null=True,db_column='mem_size')
+    mem_frequency = models.CharField("内存频率",max_length=16,blank=True,null=True,db_column='mem_frequency')
+    disk_size = models.CharField("硬盘大小",max_length=16,blank=True,null=True,db_column='disk_size')
+    description = models.CharField("描述",max_length=248,blank=True,null=True,db_column='description')
+    zone = models.CharField("区域",max_length=64,blank=True,null=True,db_column='zone')
+    room = models.CharField("所在机房",max_length=64,blank=True,null=True,db_column='room')
+    owner = models.CharField("设备维护人",max_length=64,blank=True,null=True,db_column='owner')
+    state = models.CharField("状态",max_length=16,blank=True,null=True,db_column='state')
+    sn = models.CharField("设备sn",max_length=64,blank=True,null=True,db_column='sn')
     create_date = models.DateTimeField(auto_now_add=True,blank=True)
     update_date = models.DateTimeField(blank=True,auto_now=True)
 
     class Meta:
+        db_table = 'server_information'
         verbose_name = "服务器"
         verbose_name_plural = "服务器"
 
     def __str__(self):
         return self.name
 
-class RealTimeInformation(models.Model):
+class Servermonitor(models.Model):
     """服务器实时信息收集"""
-    hostbasicinformation = models.ForeignKey("HostBasicInformation")
+    serverId = models.CharField(max_length=32,blank=True,null=True,verbose_name='所属应用系统',db_column='server_id')
     cpu_usage = models.FloatField("处理器使用率",max_length=32,blank=True)
     mem_usage = models.FloatField("内存使用率",max_length=32,blank=True)
     disk_usage = models.FloatField("硬盘使用率",max_length=32,blank=True)
     create_data = models.DateTimeField(auto_now=True,blank=True)
 
     class Meta:
+        db_table = 'server_monitor'
         verbose_name = "服务器实时信息收集"
         verbose_name_plural = "服务器实时信息收集"
-
-    def __str__(self):
-        return "%s:(%s--%s)"%(self.hostbasicinformation.name,self.cpu_usage,self.create_data)
 
 class SupportTeam(models.Model):
     """支持团队"""
     name = models.CharField("名称",max_length=200,blank=True,null=True)
 
 class UserAdmin(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
     name = models.CharField(max_length=32)
     department = models.CharField(max_length=32,null=True,blank=True)
     phone = models.IntegerField()
@@ -188,7 +193,7 @@ class NewAssetApprovalZone(models.Model):
     data = models.TextField(u'资产数据')
     date = models.DateTimeField(u'汇报日期', auto_now_add=True)
     approved = models.BooleanField(u'已批准', default=False)
-    approved_by = models.ForeignKey('UserAdmin', verbose_name=u'批准人', blank=True, null=True)
+    approved_by = models.ForeignKey('UserAdmin', verbose_name=u'批准人', blank=True, null=True,on_delete=models.CASCADE)
     approved_date = models.DateTimeField(u'批准日期', blank=True, null=True)
 
     def __str__(self):
