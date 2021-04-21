@@ -11,6 +11,16 @@ log () {
    return $retval
 }
 
+ok () {
+   # 打印消息, 并记录到日志, 日志文件由 LOG_FILE 变量定义
+   local retval=$?
+   local timestamp=$(date +%Y%m%d-%H%M%S)
+   local level=INFO
+
+   echo "[$(blue_echo ${CONN_IP:-$LAN_IP})]$timestamp $BASH_LINENO   $(green_echo $@)"
+   return 0
+}
+
 warn () {
    # 打印警告消息, 并返回0
    # 屏幕输出使用黄色字体

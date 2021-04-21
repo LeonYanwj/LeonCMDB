@@ -12,6 +12,7 @@ import json
 @login_required
 def batch_add(request):
     """
+    用于批量创建agent列表
     文件接收 view
     :param request: 请求信息
     :return:
@@ -47,6 +48,9 @@ def node_list(request):
 
 # 先注释
 def salt_agent_deploy(request):
+    """
+    使用脚本部署salt-minion服务
+    """
     if request.method == "POST":
         handler = SaltCtrl(request)
         handler.data_is_valid()

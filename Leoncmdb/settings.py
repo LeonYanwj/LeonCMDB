@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_crontab',
-    'asset',
-    'saltapi',
-    'rest_framework'
+    'asset.apps.AssetConfig',
+    'saltapi.apps.LesearchConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

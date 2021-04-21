@@ -1,0 +1,6 @@
+---
+zookeeper:
+  host: 10.10.47.150
+  port: 2181
+  zk_path: /bocloud/services/lycmdb
+  zk_auth_data: bocloud/bocloud

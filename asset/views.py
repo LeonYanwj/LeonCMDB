@@ -30,9 +30,7 @@ def asset_report(requests):
 
 @login_required
 def index(requests):
-    hosts_obj = models.HostBasicInformation.objects.all()
-    last_res = models.RealTimeInformation.objects.filter(hostbasicinformation_id=3).last()
-    print(last_res)
+    hosts_obj = models.ServerInformation.objects.all()
     return render(requests,'index.html', {"hosts_obj": hosts_obj})
 
 @login_required
@@ -71,5 +69,5 @@ def root(request):
 
 @login_required
 def test(request):
-    print(models.RealTimeInformation.objects.filter(hostbasicinformation_id=2).last())
+    print(models.Servermonitor.objects.filter(hostbasicinformation_id=2).last())
     return render(request,'serverlist.html')
