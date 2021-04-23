@@ -6,5 +6,9 @@ class AssetConfig(AppConfig):
 
     def ready(self):
         import threading
-
-        print("123456")
+        from common.zk_registry import ServiceRegister
+        zk = ServiceRegister()
+        zk_thread = threading.Thread(target=zk.start_zk)
+        zk_thread.setName('zk-thread')
+        zk_thread.setDaemon(True)
+        zk_thread.start()
