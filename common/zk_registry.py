@@ -2,6 +2,7 @@
 __author__ = "Leon"
 
 import os
+import socket
 import time
 import random
 import logging
@@ -172,3 +173,9 @@ class ServiceRegister:
 
     def is_slave(self):
         return not self.is_master
+
+
+zk = KazooClient(hosts='10.10.47.150:2181',auth_data=[('digest','bocloud:bocloud')])
+zk.start()
+zk.create('/bocloud/serivces/lycmdb')
+zk.stop()
