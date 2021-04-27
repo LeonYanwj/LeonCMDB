@@ -1,4 +1,11 @@
 ---
+lycmdb:
+  host: "10.40.10.160"
+  port: 18091
+  external_mq:
+    exchange: "lycmdb.direct.exchange"
+    type: "direct"
+
 zookeeper:
   host: "10.10.47.150"
   port: "2181"
